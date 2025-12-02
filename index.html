@@ -27,7 +27,8 @@
         h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: 0.2px; }
 
         .page {
-            max-width: 1050px;
+            width: 8.5in;
+            max-width: 100%;
             margin: 0 auto;
             background: white;
             padding: 32px;
@@ -97,6 +98,11 @@
             .items-form { grid-template-columns: 1fr; }
             .meta-grid { grid-template-columns: 1fr; }
             .totals { width: 100%; }
+        }
+
+        @media print {
+            body { padding: 0; background: white; }
+            .page { box-shadow: none; border-radius: 0; width: 8.5in; }
         }
     </style>
 </head>
@@ -660,10 +666,15 @@
             const { jsPDF } = window.jspdf;
             const canvas = await html2canvas(plantilla, { scale: 2 });
             const imgData = canvas.toDataURL("image/png");
-            const pageWidth = 612; // ancho carta en pt
-            const imgHeight = canvas.height * (pageWidth / canvas.width);
-            const pdf = new jsPDF("p", "pt", [pageWidth, imgHeight]);
-            pdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeight);
+            const pageWidth = 612; // carta 8.5in en pt
+            const pageHeight = 792; // carta 11in en pt
+            const scale = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+            const imgWidth = canvas.width * scale;
+            const imgHeight = canvas.height * scale;
+            const offsetX = (pageWidth - imgWidth) / 2;
+            const offsetY = (pageHeight - imgHeight) / 2;
+            const pdf = new jsPDF("p", "pt", "letter");
+            pdf.addImage(imgData, "PNG", offsetX, offsetY, imgWidth, imgHeight);
             pdf.save(`cotizacion-${document.getElementById("quoteNumber").value}.pdf`);
             plantilla.classList.remove("active-print");
             siguienteConsecutivo();
