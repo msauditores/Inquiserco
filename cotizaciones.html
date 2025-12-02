@@ -30,6 +30,8 @@
         .btn:hover { transform: translateY(-1px); }
         .badge { padding: 3px 8px; background: var(--muted); border-radius: 999px; border: 1px solid var(--border); font-size: 11px; color: #2b4c63; }
         .table-actions { display: flex; gap: 8px; justify-content: center; }
+        .backup-card { border: 1px dashed var(--border); padding: 12px 14px; border-radius: 10px; background: #f8fbff; margin: 12px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .backup-card p { margin: 0; color: #2b4c63; font-weight: 600; }
         @media (max-width: 900px) { body { padding: 12px; } .page { padding: 20px; } }
     </style>
 </head>
@@ -53,6 +55,15 @@
             <a href="clientes.html">Clientes</a>
         </nav>
 
+        <div class="backup-card">
+            <p>Exporta o importa un respaldo completo de tus datos.</p>
+            <div class="actions">
+                <button class="btn secondary" onclick="exportarDatos()">Exportar respaldo</button>
+                <label class="btn primary" style="cursor:pointer;" for="importBackup">Importar respaldo</label>
+                <input id="importBackup" type="file" accept="application/json" style="display:none" />
+            </div>
+        </div>
+
         <div class="section-title">Cotizaciones guardadas</div>
         <div class="info-card">
             <div class="actions" style="align-items: center;">
@@ -73,6 +84,9 @@
         const storage = {
             cotizaciones: "inquiserco_cotizaciones",
             cotizacionPendiente: "inquiserco_cotizacion_pendiente",
+            articulos: "inquiserco_articulos",
+            clientes: "inquiserco_clientes",
+            consecutivo: "inquiserco_consecutivo",
         };
         const data = {
             cotizaciones: JSON.parse(localStorage.getItem(storage.cotizaciones) || "[]"),
@@ -83,6 +97,56 @@
             currency,
             minimumFractionDigits: 0,
         }).format(value);
+
+        function exportarDatos() {
+            const snapshot = {
+                version: 1,
+                generado: new Date().toISOString(),
+                articulos: JSON.parse(localStorage.getItem(storage.articulos) || "[]"),
+                clientes: JSON.parse(localStorage.getItem(storage.clientes) || "[]"),
+                cotizaciones: data.cotizaciones,
+                consecutivo: parseInt(localStorage.getItem(storage.consecutivo) || "113", 10),
+            };
+            const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `inquiserco-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function restaurarDesdeBackup(contenido) {
+            if (!Array.isArray(contenido.articulos) || !Array.isArray(contenido.clientes) || !Array.isArray(contenido.cotizaciones)) {
+                alert("El archivo no tiene el formato esperado.");
+                return;
+            }
+            data.cotizaciones = contenido.cotizaciones;
+            localStorage.setItem(storage.cotizaciones, JSON.stringify(data.cotizaciones));
+            if (contenido.articulos) localStorage.setItem(storage.articulos, JSON.stringify(contenido.articulos));
+            if (contenido.clientes) localStorage.setItem(storage.clientes, JSON.stringify(contenido.clientes));
+            if (Number.isFinite(contenido.consecutivo)) {
+                localStorage.setItem(storage.consecutivo, contenido.consecutivo);
+            }
+            renderCotizaciones();
+            alert("Datos importados correctamente.");
+        }
+
+        document.getElementById("importBackup").addEventListener("change", event => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const contenido = JSON.parse(e.target.result);
+                    restaurarDesdeBackup(contenido);
+                } catch (error) {
+                    alert("No se pudo leer el archivo de respaldo.");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = "";
+        });
 
         function cargarCotizacion(numero) {
             localStorage.setItem(storage.cotizacionPendiente, numero);
