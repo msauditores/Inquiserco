@@ -85,12 +85,17 @@
         .totals tr td:last-child { text-align: right; font-weight: 700; }
         .totals tr:last-child td { font-size: 17px; color: var(--secondary); }
 
-        .notes { background: var(--muted); border: 1px dashed var(--border); padding: 10px 12px; border-radius: 8px; font-size: 13px; color: #425466; }
+        .notes { background: var(--muted); border: 1px dashed var(--border); padding: 10px 12px; border-radius: 8px; font-size: 13px; color: #425466; white-space: pre-line; }
         .footer { text-align: center; margin-top: 22px; color: #2b4c63; font-weight: 700; }
         .badge { padding: 3px 8px; background: var(--muted); border-radius: 999px; border: 1px solid var(--border); font-size: 11px; color: #2b4c63; }
         .pdf-hidden { display: none !important; }
-        .print-template { display: none; }
-        .print-template.active-print { display: block; position: absolute; inset: 0; margin: auto; z-index: -1; }
+        .print-template { display: none; background: linear-gradient(180deg, #f6fbff 0%, #ffffff 22%); }
+        .print-template.page { padding: 28px 32px 32px; }
+        .print-template.active-print { display: block; position: absolute; left: 50%; transform: translateX(-50%); top: 0; z-index: 10; }
+        .print-template .top-bar { margin-bottom: 10px; }
+        .print-template .meta-grid { background: #f7fbff; border: 1px solid #cbd9e8; }
+        .print-template .info-card { border-color: #cbd9e8; }
+        .print-template .section-title { background: var(--secondary); }
         
         @media (max-width: 900px) {
             body { padding: 12px; }
@@ -664,15 +669,18 @@
             const plantilla = document.getElementById("pdfTemplate");
             plantilla.classList.add("active-print");
             const { jsPDF } = window.jspdf;
-            const canvas = await html2canvas(plantilla, { scale: 2 });
+            const canvas = await html2canvas(plantilla, { scale: 2, backgroundColor: "#ffffff" });
             const imgData = canvas.toDataURL("image/png");
             const pageWidth = 612; // carta 8.5in en pt
             const pageHeight = 792; // carta 11in en pt
-            const scale = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+            const margin = 24;
+            const usableWidth = pageWidth - (margin * 2);
+            const usableHeight = pageHeight - (margin * 2);
+            const scale = Math.min(usableWidth / canvas.width, usableHeight / canvas.height);
             const imgWidth = canvas.width * scale;
             const imgHeight = canvas.height * scale;
-            const offsetX = (pageWidth - imgWidth) / 2;
-            const offsetY = (pageHeight - imgHeight) / 2;
+            const offsetX = margin + ((usableWidth - imgWidth) / 2);
+            const offsetY = margin; // mantener el contenido alineado hacia arriba
             const pdf = new jsPDF("p", "pt", "letter");
             pdf.addImage(imgData, "PNG", offsetX, offsetY, imgWidth, imgHeight);
             pdf.save(`cotizacion-${document.getElementById("quoteNumber").value}.pdf`);
