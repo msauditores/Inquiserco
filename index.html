@@ -87,7 +87,8 @@
         .notes { background: var(--muted); border: 1px dashed var(--border); padding: 10px 12px; border-radius: 8px; font-size: 13px; color: #425466; }
         .footer { text-align: center; margin-top: 22px; color: #2b4c63; font-weight: 700; }
         .badge { padding: 3px 8px; background: var(--muted); border-radius: 999px; border: 1px solid var(--border); font-size: 11px; color: #2b4c63; }
-
+        .pdf-hidden { display: none !important; }
+        
         @media (max-width: 900px) {
             body { padding: 12px; }
             .page { padding: 20px; }
@@ -226,8 +227,8 @@
             <button class="btn primary" onclick="generarPDF()">Generar PDF</button>
         </div>
 
-        <div class="section-title">Cotizaciones guardadas</div>
-        <div class="info-card">
+        <div class="section-title hide-on-pdf">Cotizaciones guardadas</div>
+        <div class="info-card hide-on-pdf">
             <div class="actions" style="align-items: center;">
                 <input id="buscarCotizacion" type="number" min="1" placeholder="N° a buscar" style="width:160px;" />
                 <button class="btn secondary" onclick="buscarCotizacion()">Buscar y cargar</button>
@@ -534,6 +535,8 @@
             }
 
             await Promise.resolve(calcularTotales());
+            const seccionesOcultables = document.querySelectorAll(".hide-on-pdf");
+            seccionesOcultables.forEach(el => el.classList.add("pdf-hidden"));
             const { jsPDF } = window.jspdf;
             const pagina = document.querySelector(".page");
             const canvas = await html2canvas(pagina, { scale: 2 });
@@ -543,6 +546,7 @@
             const pdf = new jsPDF("p", "pt", [pageWidth, imgHeight]);
             pdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeight);
             pdf.save(`cotizacion-${document.getElementById("quoteNumber").value}.pdf`);
+            seccionesOcultables.forEach(el => el.classList.remove("pdf-hidden"));
         }
 
         currencyElement.addEventListener("change", cambiarMoneda);
