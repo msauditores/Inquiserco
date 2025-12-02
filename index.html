@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cotización</title>
+    <title>Cotización - InquisERCO</title>
     <style>
         :root {
             --primary: #0296c2;
@@ -14,9 +14,7 @@
             --border: #d9e5f0;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             font-family: "Helvetica Neue", Arial, sans-serif;
@@ -26,11 +24,7 @@
             padding: 24px;
         }
 
-        h1, h2, h3 {
-            margin: 0;
-            font-weight: 700;
-            letter-spacing: 0.2px;
-        }
+        h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: 0.2px; }
 
         .page {
             max-width: 1050px;
@@ -50,303 +44,49 @@
             margin-bottom: 18px;
         }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-mark { width: 46px; height: 46px; background: linear-gradient(135deg, var(--secondary), var(--accent)); border-radius: 50%; display: grid; place-items: center; color: white; font-weight: 800; font-size: 22px; letter-spacing: 1px; }
+        .brand-name { display: flex; flex-direction: column; gap: 4px; }
+        .brand-name small { text-transform: uppercase; font-size: 12px; color: #4a5568; letter-spacing: 1px; }
+        .quote-title { font-size: 26px; color: var(--secondary); letter-spacing: 1px; }
 
-        .brand-mark {
-            width: 46px;
-            height: 46px;
-            background: linear-gradient(135deg, var(--secondary), var(--accent));
-            border-radius: 50%;
-            display: grid;
-            place-items: center;
-            color: white;
-            font-weight: 800;
-            font-size: 22px;
-            letter-spacing: 1px;
-        }
+        nav { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+        nav a { text-decoration: none; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); color: var(--secondary); font-weight: 700; background: #f8fbff; }
+        nav a.active { background: linear-gradient(135deg, var(--secondary), var(--accent)); color: white; border-color: transparent; }
 
-        .brand-name {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+        .meta-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 14px 28px; padding: 12px 16px; border: 1px solid var(--border); background: var(--muted); border-radius: 10px; margin-bottom: 18px; }
+        .meta-grid label { font-size: 12px; font-weight: 700; color: #4a5568; letter-spacing: 0.3px; }
+        .meta-grid input, .meta-grid select { width: 100%; padding: 9px 10px; margin-top: 6px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
 
-        .brand-name small {
-            text-transform: uppercase;
-            font-size: 12px;
-            color: #4a5568;
-            letter-spacing: 1px;
-        }
+        .section-title { background: var(--secondary); color: white; padding: 10px 14px; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px; border-radius: 8px 8px 0 0; }
+        .info-card { border: 1px solid var(--border); border-top: 0; border-radius: 0 0 8px 8px; padding: 14px 16px 10px; margin-bottom: 18px; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 18px; }
+        .info-row { display: flex; gap: 8px; font-size: 14px; align-items: baseline; }
+        .info-label { min-width: 120px; color: #4a5568; font-weight: 700; letter-spacing: 0.2px; }
+        .input-lite { flex: 1; padding: 8px 10px; border: 1px solid var(--border); border-radius: 7px; font-size: 14px; }
 
-        .quote-title {
-            font-size: 26px;
-            color: var(--secondary);
-            letter-spacing: 1px;
-        }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th, td { border: 1px solid var(--border); padding: 10px 12px; font-size: 14px; vertical-align: top; }
+        th { background: #f0f7fb; color: #2b4c63; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 800; }
+        tbody tr:nth-child(even) { background: white; }
 
-        .meta-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 14px 28px;
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            background: var(--muted);
-            border-radius: 10px;
-            margin-bottom: 18px;
-        }
-
-        .meta-grid label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #4a5568;
-            letter-spacing: 0.3px;
-        }
-
-        .meta-grid input, .meta-grid select {
-            width: 100%;
-            padding: 9px 10px;
-            margin-top: 6px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .section-title {
-            background: var(--secondary);
-            color: white;
-            padding: 10px 14px;
-            text-transform: uppercase;
-            font-size: 13px;
-            letter-spacing: 0.5px;
-            border-radius: 8px 8px 0 0;
-        }
-
-        .info-card {
-            border: 1px solid var(--border);
-            border-top: 0;
-            border-radius: 0 0 8px 8px;
-            padding: 14px 16px 10px;
-            margin-bottom: 18px;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 12px 18px;
-        }
-
-        .info-row {
-            display: flex;
-            gap: 8px;
-            font-size: 14px;
-            align-items: baseline;
-        }
-
-        .info-label {
-            min-width: 120px;
-            color: #4a5568;
-            font-weight: 700;
-            letter-spacing: 0.2px;
-        }
-
-        .input-lite {
-            flex: 1;
-            padding: 8px 10px;
-            border: 1px solid var(--border);
-            border-radius: 7px;
-            font-size: 14px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 8px;
-        }
-
-        th, td {
-            border: 1px solid var(--border);
-            padding: 10px 12px;
-            font-size: 14px;
-            vertical-align: top;
-        }
-
-        th {
-            background: #f0f7fb;
-            color: #2b4c63;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            font-weight: 800;
-        }
-
-        tbody tr:nth-child(even) {
-            background: white;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-        }
-
-        .btn {
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            transition: transform 0.1s ease, box-shadow 0.15s ease;
-        }
-
-        .btn.primary {
-            background: linear-gradient(135deg, var(--secondary), var(--accent));
-            color: white;
-            box-shadow: 0 12px 24px rgba(0, 150, 199, 0.25);
-        }
-
-        .btn.secondary {
-            background: white;
-            color: var(--secondary);
-            border: 1px solid var(--border);
-        }
-
+        .actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+        .btn { padding: 10px 14px; border-radius: 8px; border: none; cursor: pointer; font-weight: 700; letter-spacing: 0.3px; transition: transform 0.1s ease, box-shadow 0.15s ease; }
+        .btn.primary { background: linear-gradient(135deg, var(--secondary), var(--accent)); color: white; box-shadow: 0 12px 24px rgba(0, 150, 199, 0.25); }
+        .btn.secondary { background: white; color: var(--secondary); border: 1px solid var(--border); }
         .btn:hover { transform: translateY(-1px); }
 
-        .items-form {
-            display: grid;
-            grid-template-columns: 1fr 2fr repeat(2, 1fr) 140px;
-            gap: 10px;
-            padding: 10px 12px;
-            background: var(--muted);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            align-items: end;
-            margin-bottom: 12px;
-        }
+        .items-form { display: grid; grid-template-columns: 1fr 2fr repeat(2, 1fr) 140px; gap: 10px; padding: 10px 12px; background: var(--muted); border: 1px solid var(--border); border-radius: 8px; align-items: end; margin-bottom: 12px; }
+        .items-form label { font-size: 12px; font-weight: 700; color: #4a5568; display: block; margin-bottom: 4px; }
+        .items-form input, .items-form select { width: 100%; padding: 8px 10px; border-radius: 7px; border: 1px solid var(--border); font-size: 14px; }
 
-        .items-form label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #4a5568;
-            display: block;
-            margin-bottom: 4px;
-        }
+        .totals { width: 320px; margin-left: auto; margin-top: 12px; }
+        .totals tr td:last-child { text-align: right; font-weight: 700; }
+        .totals tr:last-child td { font-size: 17px; color: var(--secondary); }
 
-        .items-form input {
-            width: 100%;
-            padding: 8px 10px;
-            border-radius: 7px;
-            border: 1px solid var(--border);
-            font-size: 14px;
-        }
-
-        .totals {
-            width: 320px;
-            margin-left: auto;
-            margin-top: 12px;
-        }
-
-        .totals tr td:last-child {
-            text-align: right;
-            font-weight: 700;
-        }
-
-        .totals tr:last-child td {
-            font-size: 17px;
-            color: var(--secondary);
-        }
-
-        .notes {
-            background: var(--muted);
-            border: 1px dashed var(--border);
-            padding: 10px 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            color: #425466;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 22px;
-            color: #2b4c63;
-            font-weight: 700;
-        }
-
-        .panel {
-            margin-top: 22px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: #f8fbff;
-            padding: 16px;
-        }
-
-        .panel h3 {
-            margin-bottom: 12px;
-            color: var(--secondary);
-        }
-
-        .panel-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 14px 18px;
-        }
-
-        .mini-form label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #4a5568;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .mini-form input {
-            width: 100%;
-            padding: 8px 10px;
-            border-radius: 7px;
-            border: 1px solid var(--border);
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 8px;
-        }
-
-        .data-table th, .data-table td {
-            border: 1px solid var(--border);
-            padding: 8px 10px;
-            font-size: 13px;
-        }
-
-        .badge {
-            padding: 3px 8px;
-            background: var(--muted);
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            font-size: 11px;
-            color: #2b4c63;
-        }
-
-        .toolbar {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .toolbar input {
-            padding: 8px 10px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-        }
+        .notes { background: var(--muted); border: 1px dashed var(--border); padding: 10px 12px; border-radius: 8px; font-size: 13px; color: #425466; }
+        .footer { text-align: center; margin-top: 22px; color: #2b4c63; font-weight: 700; }
+        .badge { padding: 3px 8px; background: var(--muted); border-radius: 999px; border: 1px solid var(--border); font-size: 11px; color: #2b4c63; }
 
         @media (max-width: 900px) {
             body { padding: 12px; }
@@ -357,7 +97,8 @@
         }
     </style>
 </head>
-<body>    <div class="page">
+<body>
+    <div class="page">
         <div class="top-bar">
             <div class="brand">
                 <div class="brand-mark">IQ</div>
@@ -369,7 +110,12 @@
             <div class="quote-title">COTIZACIÓN</div>
         </div>
 
-    
+        <nav>
+            <a class="active" href="index.html">Cotización</a>
+            <a href="articulos.html">Artículos</a>
+            <a href="clientes.html">Clientes</a>
+        </nav>
+
         <div class="meta-grid">
             <div>
                 <label for="quoteNumber">N° de Cotización</label>
@@ -406,6 +152,11 @@
 
         <div class="section-title">Datos del cliente</div>
         <div class="info-card">
+            <div class="info-row">
+                <span class="info-label">Seleccionar</span>
+                <select class="input-lite" id="selectCliente"></select>
+                <span class="badge" id="clientesCount">0 registrados</span>
+            </div>
             <div class="info-row"><span class="info-label">Empresa:</span><input class="input-lite" id="clientName" placeholder="Nombre de la empresa" /></div>
             <div class="info-row"><span class="info-label">Cargo / contacto:</span><input class="input-lite" id="clientContact" placeholder="Contacto y cargo" /></div>
             <div class="info-row"><span class="info-label">Productos:</span><input class="input-lite" id="clientProducts" placeholder="Categorías requeridas" /></div>
@@ -424,7 +175,7 @@
                 </div>
                 <div>
                     <label for="itemDesc">Descripción</label>
-                    <input id="itemDesc" type="text" placeholder="Descripción del producto o servicio" />
+                    <select id="itemDesc"></select>
                 </div>
                 <div>
                     <label for="itemQty">Cantidad</label>
@@ -475,78 +226,19 @@
             <button class="btn primary" onclick="generarPDF()">Generar PDF</button>
         </div>
 
-        <div class="panel">
-            <h3>Administración de datos</h3>
-            <div class="panel-grid">
-                <div>
-                    <div class="toolbar">
-                        <strong>Artículos</strong>
-                        <span class="badge" id="articulosCount">0 registrados</span>
-                    </div>
-                    <div class="mini-form">
-                        <label>Código</label>
-                        <input id="articuloCodigo" type="text" placeholder="Código interno" />
-                        <label>Descripción</label>
-                        <input id="articuloNombre" type="text" placeholder="Nombre o descripción" />
-                        <label>Precio de compra</label>
-                        <input id="articuloCompra" type="number" min="0" step="0.01" placeholder="0" />
-                        <label>Precio de venta</label>
-                        <input id="articuloVenta" type="number" min="0" step="0.01" placeholder="0" />
-                        <div class="actions">
-                            <button class="btn secondary" onclick="limpiarArticulo()">Limpiar</button>
-                            <button class="btn primary" onclick="guardarArticulo()">Guardar artículo</button>
-                        </div>
-                    </div>
-                    <table class="data-table" id="tablaArticulos">
-                        <thead>
-                            <tr><th>Código</th><th>Descripción</th><th>Compra</th><th>Venta</th><th>Acciones</th></tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-                <div>
-                    <div class="toolbar">
-                        <strong>Clientes</strong>
-                        <span class="badge" id="clientesCount">0 registrados</span>
-                    </div>
-                    <div class="mini-form">
-                        <label>Empresa</label>
-                        <input id="clienteEmpresa" type="text" placeholder="Empresa" />
-                        <label>Dirección</label>
-                        <input id="clienteDireccion" type="text" placeholder="Dirección" />
-                        <label>Correo</label>
-                        <input id="clienteCorreo" type="email" placeholder="correo@ejemplo.com" />
-                        <label>Teléfono</label>
-                        <input id="clienteTelefono" type="text" placeholder="Teléfono" />
-                        <label>Sede / Ciudad</label>
-                        <input id="clienteSede" type="text" placeholder="Sede" />
-                        <div class="actions">
-                            <button class="btn secondary" onclick="limpiarCliente()">Limpiar</button>
-                            <button class="btn primary" onclick="guardarCliente()">Guardar cliente</button>
-                        </div>
-                    </div>
-                    <table class="data-table" id="tablaClientes">
-                        <thead>
-                            <tr><th>Empresa</th><th>Correo</th><th>Teléfono</th><th>Sede</th><th>Acciones</th></tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+        <div class="section-title">Cotizaciones guardadas</div>
+        <div class="info-card">
+            <div class="actions" style="align-items: center;">
+                <input id="buscarCotizacion" type="number" min="1" placeholder="N° a buscar" style="width:160px;" />
+                <button class="btn secondary" onclick="buscarCotizacion()">Buscar y cargar</button>
+                <span class="badge" id="cotizacionesCount">0 almacenadas</span>
             </div>
-            <div class="panel" style="margin-top:16px;">
-                <div class="toolbar">
-                    <strong>Cotizaciones guardadas</strong>
-                    <input id="buscarCotizacion" type="number" min="1" placeholder="N° a buscar" />
-                    <button class="btn secondary" onclick="buscarCotizacion()">Buscar y cargar</button>
-                    <span class="badge" id="cotizacionesCount">0 almacenadas</span>
-                </div>
-                <table class="data-table" id="tablaCotizaciones">
-                    <thead>
-                        <tr><th>N°</th><th>Cliente</th><th>Fecha</th><th>Moneda</th><th>Total</th><th>Acciones</th></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+            <table class="data-table" id="tablaCotizaciones">
+                <thead>
+                    <tr><th>N°</th><th>Cliente</th><th>Fecha</th><th>Moneda</th><th>Total</th><th>Acciones</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
 
         <div class="footer">¡Gracias por tu preferencia!</div>
@@ -560,6 +252,8 @@
         const subtotalEl = document.getElementById("subtotal");
         const ivaEl = document.getElementById("iva");
         const totalEl = document.getElementById("total");
+        const selectCliente = document.getElementById("selectCliente");
+        const selectArticulo = document.getElementById("itemDesc");
 
         const storage = {
             articulos: "inquiserco_articulos",
@@ -606,7 +300,7 @@
 
         function limpiarItem() {
             document.getElementById("itemCode").value = "";
-            document.getElementById("itemDesc").value = "";
+            selectArticulo.value = "";
             document.getElementById("itemQty").value = 1;
             document.getElementById("itemPrice").value = 0;
             document.getElementById("itemCode").focus();
@@ -614,22 +308,17 @@
 
         function agregarItem() {
             const code = document.getElementById("itemCode").value.trim();
-            const desc = document.getElementById("itemDesc").value.trim();
+            const desc = selectArticulo.options[selectArticulo.selectedIndex]?.text?.trim() || selectArticulo.value.trim();
             const qty = parseFloat(document.getElementById("itemQty").value);
             const price = parseFloat(document.getElementById("itemPrice").value);
 
             if (!desc || Number.isNaN(qty) || Number.isNaN(price)) {
-                alert("Completa todos los campos del ítem antes de agregarlo.");
+                alert("Completa los datos del ítem.");
                 return;
             }
 
-            insertarFila({ code, desc, qty, price });
-            limpiarItem();
-        }
-
-        function insertarFila({ code, desc, qty, price }) {
-            const row = document.createElement("tr");
             const total = qty * price;
+            const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${code || "-"}</td>
                 <td>${desc}</td>
@@ -637,220 +326,110 @@
                 <td style="text-align:right;">${formatter().format(price)}</td>
                 <td style="text-align:right;">${formatter().format(total)}</td>
                 <td style="text-align:center;">
-                    <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="eliminarFila(this)">Eliminar</button>
-                </td>
-            `;
+                    <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="borrarFila(this)">Borrar</button>
+                </td>`;
             tableBody.appendChild(row);
+            limpiarItem();
             calcularTotales();
         }
-        
-        function eliminarFila(button) {
-            const row = button.closest("tr");
-            row.remove();
+
+        function insertarFila(item) {
+            const row = document.createElement("tr");
+            const total = item.qty * item.price;
+            row.innerHTML = `
+                <td>${item.code || "-"}</td>
+                <td>${item.desc}</td>
+                <td style="text-align:center;">${item.qty}</td>
+                <td style="text-align:right;">${formatter().format(item.price)}</td>
+                <td style="text-align:right;">${formatter().format(total)}</td>
+                <td style="text-align:center;">
+                    <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="borrarFila(this)">Borrar</button>
+                </td>`;
+            tableBody.appendChild(row);
+        }
+
+        function borrarFila(button) {
+            button.closest("tr").remove();
             calcularTotales();
         }
 
         function calcularTotales() {
             let subtotal = 0;
-            Array.from(tableBody.querySelectorAll("tr")).forEach(row => {
-                const qty = parseFloat(row.cells[2].textContent);
-                const price = parseFloat(row.cells[3].textContent.replace(/[^\d.,-]/g, "").replace(/,/g, ""));
+            for (const row of tableBody.querySelectorAll("tr")) {
+                const qty = parseFloat(row.cells[2].textContent) || 0;
+                const price = parseFloat(row.cells[3].textContent.replace(/[^\d.,-]/g, "").replace(/,/g, "")) || 0;
                 subtotal += qty * price;
-            });
+            }
             const iva = subtotal * 0.19;
             const total = subtotal + iva;
-
-            subtotalEl.textContent = formatter().format(subtotal);
-            ivaEl.textContent = formatter().format(iva);
-            totalEl.textContent = formatter().format(total);
+            subtotalEl.textContent = formatCurrency(subtotal);
+            ivaEl.textContent = formatCurrency(iva);
+            totalEl.textContent = formatCurrency(total);
             return { subtotal, iva, total };
         }
 
         function cambiarMoneda() {
-            Array.from(tableBody.querySelectorAll("tr")).forEach(row => {
-                const qty = parseFloat(row.cells[2].textContent);
-                const price = parseFloat(row.cells[3].textContent.replace(/[^\d.,-]/g, "").replace(/,/g, ""));
-                const total = qty * price;
-                row.cells[3].textContent = formatter().format(price);
-                row.cells[4].textContent = formatter().format(total);
-            });
+            const items = Array.from(tableBody.querySelectorAll("tr")).map(row => ({
+                code: row.cells[0].textContent,
+                desc: row.cells[1].textContent,
+                qty: parseFloat(row.cells[2].textContent),
+                price: parseFloat(row.cells[3].textContent.replace(/[^\d.,-]/g, "").replace(/,/g, "")),
+            }));
+            tableBody.innerHTML = "";
+            items.forEach(insertarFila);
             calcularTotales();
         }
 
-        function persistir(clave, lista) {
-            localStorage.setItem(clave, JSON.stringify(lista));
-        }
+        const persistir = (key, value) => localStorage.setItem(key, JSON.stringify(value));
 
-        function renderArticulos() {
-            const tbody = document.querySelector("#tablaArticulos tbody");
-            tbody.innerHTML = "";
-            data.articulos.forEach((articulo, index) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${articulo.codigo || "-"}</td>
-                    <td>${articulo.nombre}</td>
-                    <td style="text-align:right;">${formatCurrency(articulo.compra)}</td>
-                    <td style="text-align:right;">${formatCurrency(articulo.venta)}</td>
-                    <td style="text-align:center;">
-                        <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="editarArticulo(${index})">Editar</button>
-                        <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="eliminarArticulo(${index})">Borrar</button>
-                        <button class="btn primary" style="padding:6px 10px;font-size:12px;" onclick="usarArticulo(${index})">Usar</button>
-                    </td>`;
-                tbody.appendChild(row);
-            });
-            document.getElementById("articulosCount").textContent = `${data.articulos.length} registrados`;
-        }
-
-        function renderClientes() {
-            const tbody = document.querySelector("#tablaClientes tbody");
-            tbody.innerHTML = "";
+        function renderSelectClientes() {
+            selectCliente.innerHTML = "";
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = "Selecciona un cliente";
+            selectCliente.appendChild(placeholder);
             data.clientes.forEach((cliente, index) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${cliente.empresa}</td>
-                    <td>${cliente.correo || "-"}</td>
-                    <td>${cliente.telefono || "-"}</td>
-                    <td>${cliente.sede || "-"}</td>
-                    <td style="text-align:center;">
-                        <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="editarCliente(${index})">Editar</button>
-                        <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="eliminarCliente(${index})">Borrar</button>
-                        <button class="btn primary" style="padding:6px 10px;font-size:12px;" onclick="usarCliente(${index})">Usar</button>
-                    </td>`;
-                tbody.appendChild(row);
+                const option = document.createElement("option");
+                option.value = index;
+                option.textContent = cliente.empresa;
+                selectCliente.appendChild(option);
             });
             document.getElementById("clientesCount").textContent = `${data.clientes.length} registrados`;
         }
 
-        function renderCotizaciones() {
-            const tbody = document.querySelector("#tablaCotizaciones tbody");
-            tbody.innerHTML = "";
-            data.cotizaciones.forEach((cotizacion, index) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${cotizacion.numero}</td>
-                    <td>${cotizacion.cliente?.empresa || "-"}</td>
-                    <td>${cotizacion.fecha}</td>
-                    <td>${cotizacion.moneda}</td>
-                    <td style="text-align:right;">${formatCurrency(cotizacion.totales.total, cotizacion.moneda)}</td>
-                    <td style="text-align:center;">
-                        <button class="btn primary" style="padding:6px 10px;font-size:12px;" onclick="cargarCotizacionPorIndice(${index})">Cargar</button>
-                        <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="borrarCotizacion(${index})">Borrar</button>
-                    </td>`;
-                tbody.appendChild(row);
+        function renderSelectArticulos() {
+            selectArticulo.innerHTML = "";
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = "Selecciona o busca un artículo";
+            selectArticulo.appendChild(placeholder);
+            data.articulos.forEach((articulo, index) => {
+                const option = document.createElement("option");
+                option.value = index;
+                option.textContent = articulo.nombre;
+                selectArticulo.appendChild(option);
             });
-            document.getElementById("cotizacionesCount").textContent = `${data.cotizaciones.length} almacenadas`;
         }
 
-        let articuloEditando = null;
-        function guardarArticulo() {
-            const codigo = document.getElementById("articuloCodigo").value.trim();
-            const nombre = document.getElementById("articuloNombre").value.trim();
-            const compra = parseFloat(document.getElementById("articuloCompra").value);
-            const venta = parseFloat(document.getElementById("articuloVenta").value);
-            if (!nombre || Number.isNaN(compra) || Number.isNaN(venta)) {
-                alert("Completa los datos del artículo.");
-                return;
-            }
-
-            const nuevo = { codigo, nombre, compra, venta };
-            if (articuloEditando !== null) {
-                data.articulos[articuloEditando] = nuevo;
-            } else {
-                data.articulos.push(nuevo);
-            }
-            persistir(storage.articulos, data.articulos);
-            renderArticulos();
-            limpiarArticulo();
-        }
-
-        function limpiarArticulo() {
-            articuloEditando = null;
-            document.getElementById("articuloCodigo").value = "";
-            document.getElementById("articuloNombre").value = "";
-            document.getElementById("articuloCompra").value = "";
-            document.getElementById("articuloVenta").value = "";
-        }
-
-        function editarArticulo(index) {
-            articuloEditando = index;
-            const articulo = data.articulos[index];
-            document.getElementById("articuloCodigo").value = articulo.codigo;
-            document.getElementById("articuloNombre").value = articulo.nombre;
-            document.getElementById("articuloCompra").value = articulo.compra;
-            document.getElementById("articuloVenta").value = articulo.venta;
-        }
-
-        function eliminarArticulo(index) {
-            if (!confirm("¿Eliminar este artículo?")) return;
-            data.articulos.splice(index, 1);
-            persistir(storage.articulos, data.articulos);
-            renderArticulos();
-        }
-
-        function usarArticulo(index) {
-            const articulo = data.articulos[index];
-            document.getElementById("itemCode").value = articulo.codigo;
-            document.getElementById("itemDesc").value = articulo.nombre;
-            document.getElementById("itemPrice").value = articulo.venta;
-            document.getElementById("itemQty").focus();
-        }
-
-        let clienteEditando = null;
-        function guardarCliente() {
-            const empresa = document.getElementById("clienteEmpresa").value.trim();
-            const direccion = document.getElementById("clienteDireccion").value.trim();
-            const correo = document.getElementById("clienteCorreo").value.trim();
-            const telefono = document.getElementById("clienteTelefono").value.trim();
-            const sede = document.getElementById("clienteSede").value.trim();
-            if (!empresa) {
-                alert("La empresa es obligatoria.");
-                return;
-            }
-            const nuevo = { empresa, direccion, correo, telefono, sede };
-            if (clienteEditando !== null) {
-                data.clientes[clienteEditando] = nuevo;
-            } else {
-                data.clientes.push(nuevo);
-            }
-            persistir(storage.clientes, data.clientes);
-            renderClientes();
-            limpiarCliente();
-        }
-
-        function limpiarCliente() {
-            clienteEditando = null;
-            document.getElementById("clienteEmpresa").value = "";
-            document.getElementById("clienteDireccion").value = "";
-            document.getElementById("clienteCorreo").value = "";
-            document.getElementById("clienteTelefono").value = "";
-            document.getElementById("clienteSede").value = "";
-        }
-
-        function editarCliente(index) {
-            clienteEditando = index;
-            const cliente = data.clientes[index];
-            document.getElementById("clienteEmpresa").value = cliente.empresa;
-            document.getElementById("clienteDireccion").value = cliente.direccion;
-            document.getElementById("clienteCorreo").value = cliente.correo;
-            document.getElementById("clienteTelefono").value = cliente.telefono;
-            document.getElementById("clienteSede").value = cliente.sede;
-        }
-
-        function eliminarCliente(index) {
-            if (!confirm("¿Eliminar este cliente?")) return;
-            data.clientes.splice(index, 1);
-            persistir(storage.clientes, data.clientes);
-            renderClientes();
-        }
-
-        function usarCliente(index) {
+        selectCliente.addEventListener("change", () => {
+            const index = parseInt(selectCliente.value, 10);
+            if (Number.isNaN(index)) return;
             const cliente = data.clientes[index];
             document.getElementById("clientName").value = cliente.empresa;
-            document.getElementById("clientAddress").value = cliente.direccion;
-            document.getElementById("clientEmail").value = cliente.correo;
-            document.getElementById("clientPhone").value = cliente.telefono;
-            document.getElementById("clientCity").value = cliente.sede;
-        }
+            document.getElementById("clientAddress").value = cliente.direccion || "";
+            document.getElementById("clientEmail").value = cliente.correo || "";
+            document.getElementById("clientPhone").value = cliente.telefono || "";
+            document.getElementById("clientCity").value = cliente.sede || "";
+        });
+
+        selectArticulo.addEventListener("change", () => {
+            const index = parseInt(selectArticulo.value, 10);
+            if (Number.isNaN(index)) return;
+            const articulo = data.articulos[index];
+            document.getElementById("itemCode").value = articulo.codigo || "";
+            document.getElementById("itemPrice").value = articulo.venta || 0;
+            document.getElementById("itemQty").focus();
+        });
 
         function obtenerItems() {
             return Array.from(tableBody.querySelectorAll("tr")).map(row => ({
@@ -928,6 +507,26 @@
             cargarCotizacionPorIndice(index);
         }
 
+        function renderCotizaciones() {
+            const tbody = document.querySelector("#tablaCotizaciones tbody");
+            tbody.innerHTML = "";
+            data.cotizaciones.forEach((cotizacion, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${cotizacion.numero}</td>
+                    <td>${cotizacion.cliente?.empresa || "-"}</td>
+                    <td>${cotizacion.fecha}</td>
+                    <td>${cotizacion.moneda}</td>
+                    <td style="text-align:right;">${formatCurrency(cotizacion.totales.total, cotizacion.moneda)}</td>
+                    <td style="text-align:center;">
+                        <button class="btn primary" style="padding:6px 10px;font-size:12px;" onclick="cargarCotizacionPorIndice(${index})">Cargar</button>
+                        <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="borrarCotizacion(${index})">Borrar</button>
+                    </td>`;
+                tbody.appendChild(row);
+            });
+            document.getElementById("cotizacionesCount").textContent = `${data.cotizaciones.length} almacenadas`;
+        }
+
         async function generarPDF() {
             if (tableBody.children.length === 0) {
                 alert("Agrega al menos un ítem antes de generar PDF.");
@@ -939,12 +538,10 @@
             const pagina = document.querySelector(".page");
             const canvas = await html2canvas(pagina, { scale: 2 });
             const imgData = canvas.toDataURL("image/png");
-            const pdf = new jsPDF("p", "pt", "letter");
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
-            const imgWidth = pageWidth;
-            const imgHeight = canvas.height * pageWidth / canvas.width;
-            pdf.addImage(imgData, "PNG", 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
+            const pageWidth = 612; // ancho carta en pt
+            const imgHeight = canvas.height * (pageWidth / canvas.width);
+            const pdf = new jsPDF("p", "pt", [pageWidth, imgHeight]);
+            pdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeight);
             pdf.save(`cotizacion-${document.getElementById("quoteNumber").value}.pdf`);
         }
 
@@ -953,8 +550,8 @@
         function inicializar() {
             initFechas();
             refrescarConsecutivoInicial();
-            renderArticulos();
-            renderClientes();
+            renderSelectArticulos();
+            renderSelectClientes();
             renderCotizaciones();
             if (tableBody.children.length === 0) {
                 insertarFila({ code: "2", desc: "VENTILADOR INDUSTRIAL DE PARED INSTALADO", qty: 2, price: 495000 });
