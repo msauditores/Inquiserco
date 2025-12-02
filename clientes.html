@@ -31,6 +31,8 @@
         th, td { border: 1px solid var(--border); padding: 10px 12px; font-size: 14px; vertical-align: top; }
         th { background: #f0f7fb; color: #2b4c63; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 800; }
         .badge { padding: 3px 8px; background: var(--muted); border-radius: 999px; border: 1px solid var(--border); font-size: 11px; color: #2b4c63; }
+        .backup-card { border: 1px dashed var(--border); padding: 12px 14px; border-radius: 10px; background: #f8fbff; margin: 12px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .backup-card p { margin: 0; color: #2b4c63; font-weight: 600; }
         @media (max-width: 900px) { body { padding: 12px; } .page { padding: 20px; } }
     </style>
 </head>
@@ -53,6 +55,15 @@
             <a href="articulos.html">Artículos</a>
             <a class="active" href="clientes.html">Clientes</a>
         </nav>
+
+        <div class="backup-card">
+            <p>Respalda tus clientes, artículos y cotizaciones para restaurarlos después.</p>
+            <div class="actions">
+                <button class="btn secondary" onclick="exportarDatos()">Exportar respaldo</button>
+                <label class="btn primary" style="cursor:pointer;" for="importBackup">Importar respaldo</label>
+                <input id="importBackup" type="file" accept="application/json" style="display:none" />
+            </div>
+        </div>
 
         <div class="section-title">Gestión de clientes</div>
         <div class="info-card">
@@ -86,11 +97,67 @@
     </div>
 
     <script>
-        const storage = { clientes: "inquiserco_clientes" };
+        const storage = {
+            clientes: "inquiserco_clientes",
+            articulos: "inquiserco_articulos",
+            cotizaciones: "inquiserco_cotizaciones",
+            consecutivo: "inquiserco_consecutivo",
+        };
         const data = { clientes: JSON.parse(localStorage.getItem(storage.clientes) || "[]") };
         let clienteEditando = null;
 
         const persistir = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+
+        function exportarDatos() {
+            const snapshot = {
+                version: 1,
+                generado: new Date().toISOString(),
+                articulos: JSON.parse(localStorage.getItem(storage.articulos) || "[]"),
+                clientes: JSON.parse(localStorage.getItem(storage.clientes) || "[]"),
+                cotizaciones: JSON.parse(localStorage.getItem(storage.cotizaciones) || "[]"),
+                consecutivo: parseInt(localStorage.getItem(storage.consecutivo) || "113", 10),
+            };
+            const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `inquiserco-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function restaurarDesdeBackup(contenido) {
+            if (!Array.isArray(contenido.articulos) || !Array.isArray(contenido.clientes) || !Array.isArray(contenido.cotizaciones)) {
+                alert("El archivo no tiene el formato esperado.");
+                return;
+            }
+            data.clientes = contenido.clientes;
+            persistir(storage.clientes, data.clientes);
+            if (contenido.articulos) persistir(storage.articulos, contenido.articulos);
+            if (contenido.cotizaciones) persistir(storage.cotizaciones, contenido.cotizaciones);
+            if (Number.isFinite(contenido.consecutivo)) {
+                localStorage.setItem(storage.consecutivo, contenido.consecutivo);
+            }
+            renderClientes();
+            limpiarCliente();
+            alert("Datos importados correctamente.");
+        }
+
+        document.getElementById("importBackup").addEventListener("change", event => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const contenido = JSON.parse(e.target.result);
+                    restaurarDesdeBackup(contenido);
+                } catch (error) {
+                    alert("No se pudo leer el archivo de respaldo.");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = "";
+        });
 
         function renderClientes() {
             const tbody = document.querySelector("#tablaClientes tbody");
