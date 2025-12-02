@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotización</title>
+    <style>
+        /* Estilo básico */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .table th, .table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Cotización</h1>
+        <h2>Datos de la empresa y cliente</h2>
+
+        <!-- Formulario de Cotización -->
+        <div class="form-group">
+            <label for="cliente">Cliente:</label>
+            <input type="text" id="cliente" placeholder="Nombre del Cliente" required>
+        </div>
+        <div class="form-group">
+            <label for="fecha">Fecha:</label>
+            <input type="date" id="fecha" required>
+        </div>
+        <div class="form-group">
+            <label for="servicio">Servicio:</label>
+            <select id="servicio" required>
+                <option value="">Seleccione un servicio</option>
+                <!-- Aquí se llenarán los servicios desde el backend -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="cantidad">Cantidad:</label>
+            <input type="number" id="cantidad" placeholder="Cantidad" required>
+        </div>
+        <button class="btn" onclick="agregarServicio()">Agregar Servicio</button>
+
+        <!-- Tabla de Servicios Agregados -->
+        <h2>Servicios Seleccionados</h2>
+        <table class="table" id="tablaServicios">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <!-- Totales -->
+        <h2>Totales</h2>
+        <div>
+            <p>Subtotal: <span id="subtotal">0</span></p>
+            <p>IVA: <span id="iva">0</span></p>
+            <p>Total: <span id="total">0</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Este array simula los datos de servicios que podrían venir del backend
+        const servicios = [
+            { id: 1, descripcion: "Ventilador de pared", precio_unitario: 495000 },
+            { id: 2, descripcion: "Aire acondicionado", precio_unitario: 1200000 },
+        ];
+
+        // Llenar el select con los servicios
+        const servicioSelect = document.getElementById("servicio");
+        servicios.forEach(servicio => {
+            const option = document.createElement("option");
+            option.value = servicio.id;
+            option.textContent = servicio.descripcion;
+            servicioSelect.appendChild(option);
+        });
+
+        // Función para agregar el servicio seleccionado a la tabla
+        function agregarServicio() {
+            const cliente = document.getElementById("cliente").value;
+            const fecha = document.getElementById("fecha").value;
+            const servicioId = document.getElementById("servicio").value;
+            const cantidad = document.getElementById("cantidad").value;
+
+            if (!cliente || !fecha || !servicioId || !cantidad) {
+                alert("Por favor complete todos los campos.");
+                return;
+            }
+
+            const servicioSeleccionado = servicios.find(serv => serv.id == servicioId);
+            const precioTotal = servicioSeleccionado.precio_unitario * cantidad;
+
+            // Agregar a la tabla
+            const tbody = document.getElementById("tablaServicios").getElementsByTagName("tbody")[0];
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>${servicioSeleccionado.descripcion}</td>
+                <td>${cantidad}</td>
+                <td>${precioTotal}</td>
+            `;
+
+            // Calcular totales
+            calcularTotales();
+        }
+
+        // Función para calcular totales
+        function calcularTotales() {
+            let subtotal = 0;
+            const rows = document.getElementById("tablaServicios").getElementsByTagName("tbody")[0].rows;
+            for (let i = 0; i < rows.length; i++) {
+                subtotal += parseFloat(rows[i].cells[2].textContent);
+            }
+
+            const iva = subtotal * 0.19; // 19% de IVA
+            const total = subtotal + iva;
+
+            // Mostrar totales
+            document.getElementById("subtotal").textContent = subtotal.toFixed(2);
+            document.getElementById("iva").textContent = iva.toFixed(2);
+            document.getElementById("total").textContent = total.toFixed(2);
+        }
+    </script>
+</body>
+</html>
