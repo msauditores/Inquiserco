@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizaciones - InquisERCO</title>
+    <style>
+        :root { --primary: #0296c2; --secondary: #0066a1; --accent: #00b4e5; --text: #262626; --muted: #f2f7fb; --border: #d9e5f0; }
+        * { box-sizing: border-box; }
+        body { font-family: "Helvetica Neue", Arial, sans-serif; background: #eef2f6; color: var(--text); margin: 0; padding: 24px; }
+        h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: 0.2px; }
+        .page { max-width: 1024px; margin: 0 auto; background: white; padding: 32px; box-shadow: 0 18px 40px rgba(15, 23, 42, 0.15); border-radius: 12px; }
+        .top-bar { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--secondary); padding-bottom: 18px; margin-bottom: 18px; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-mark { width: 46px; height: 46px; background: linear-gradient(135deg, var(--secondary), var(--accent)); border-radius: 50%; display: grid; place-items: center; color: white; font-weight: 800; font-size: 22px; letter-spacing: 1px; }
+        .brand-name { display: flex; flex-direction: column; gap: 4px; }
+        .brand-name small { text-transform: uppercase; font-size: 12px; color: #4a5568; letter-spacing: 1px; }
+        nav { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+        nav a { text-decoration: none; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); color: var(--secondary); font-weight: 700; background: #f8fbff; }
+        nav a.active { background: linear-gradient(135deg, var(--secondary), var(--accent)); color: white; border-color: transparent; }
+        .section-title { background: var(--secondary); color: white; padding: 10px 14px; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px; border-radius: 8px 8px 0 0; }
+        .info-card { border: 1px solid var(--border); border-top: 0; border-radius: 0 0 8px 8px; padding: 14px 16px 10px; margin-bottom: 18px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th, td { border: 1px solid var(--border); padding: 10px 12px; font-size: 14px; vertical-align: top; }
+        th { background: #f0f7fb; color: #2b4c63; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 800; }
+        .actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+        .btn { padding: 10px 14px; border-radius: 8px; border: none; cursor: pointer; font-weight: 700; letter-spacing: 0.3px; transition: transform 0.1s ease, box-shadow 0.15s ease; }
+        .btn.primary { background: linear-gradient(135deg, var(--secondary), var(--accent)); color: white; box-shadow: 0 12px 24px rgba(0, 150, 199, 0.25); }
+        .btn.secondary { background: white; color: var(--secondary); border: 1px solid var(--border); }
+        .btn:hover { transform: translateY(-1px); }
+        .badge { padding: 3px 8px; background: var(--muted); border-radius: 999px; border: 1px solid var(--border); font-size: 11px; color: #2b4c63; }
+        .table-actions { display: flex; gap: 8px; justify-content: center; }
+        @media (max-width: 900px) { body { padding: 12px; } .page { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="top-bar">
+            <div class="brand">
+                <div class="brand-mark">IQ</div>
+                <div class="brand-name">
+                    <h3>INQUISERCO</h3>
+                    <small>Ingeniería Química y Servicios</small>
+                </div>
+            </div>
+            <h2 style="color: var(--secondary);">Cotizaciones</h2>
+        </div>
+
+        <nav>
+            <a href="index.html">Cotización</a>
+            <a class="active" href="cotizaciones.html">Cotizaciones</a>
+            <a href="articulos.html">Artículos</a>
+            <a href="clientes.html">Clientes</a>
+        </nav>
+
+        <div class="section-title">Cotizaciones guardadas</div>
+        <div class="info-card">
+            <div class="actions" style="align-items: center;">
+                <input id="buscarCotizacion" type="number" min="1" placeholder="N° a buscar" style="width:160px;" />
+                <button class="btn secondary" onclick="buscarCotizacion()">Buscar y cargar</button>
+                <span class="badge" id="cotizacionesCount">0 almacenadas</span>
+            </div>
+            <table id="tablaCotizaciones">
+                <thead>
+                    <tr><th>N°</th><th>Cliente</th><th>Fecha</th><th>Moneda</th><th>Total</th><th>Acciones</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const storage = {
+            cotizaciones: "inquiserco_cotizaciones",
+            cotizacionPendiente: "inquiserco_cotizacion_pendiente",
+        };
+        const data = {
+            cotizaciones: JSON.parse(localStorage.getItem(storage.cotizaciones) || "[]"),
+        };
+
+        const formatCurrency = (value, currency = "COP") => new Intl.NumberFormat("es-CO", {
+            style: "currency",
+            currency,
+            minimumFractionDigits: 0,
+        }).format(value);
+
+        function cargarCotizacion(numero) {
+            localStorage.setItem(storage.cotizacionPendiente, numero);
+            window.location.href = "index.html";
+        }
+
+        function borrarCotizacion(index) {
+            if (!confirm("¿Eliminar esta cotización guardada?")) return;
+            data.cotizaciones.splice(index, 1);
+            localStorage.setItem(storage.cotizaciones, JSON.stringify(data.cotizaciones));
+            renderCotizaciones();
+        }
+
+        function buscarCotizacion() {
+            const numero = document.getElementById("buscarCotizacion").value;
+            const index = data.cotizaciones.findIndex(c => String(c.numero) === String(numero));
+            if (index === -1) {
+                alert("No se encontró la cotización solicitada.");
+                return;
+            }
+            cargarCotizacion(data.cotizaciones[index].numero);
+        }
+
+        function renderCotizaciones() {
+            const tbody = document.querySelector("#tablaCotizaciones tbody");
+            tbody.innerHTML = "";
+            data.cotizaciones.forEach((cotizacion, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${cotizacion.numero}</td>
+                    <td>${cotizacion.cliente?.empresa || "-"}</td>
+                    <td>${cotizacion.fecha}</td>
+                    <td>${cotizacion.moneda}</td>
+                    <td style="text-align:right;">${formatCurrency(cotizacion.totales?.total || 0, cotizacion.moneda)}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="btn primary" style="padding:6px 10px;font-size:12px;" onclick="cargarCotizacion(${cotizacion.numero})">Cargar</button>
+                            <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="borrarCotizacion(${index})">Borrar</button>
+                        </div>
+                    </td>`;
+                tbody.appendChild(row);
+            });
+            document.getElementById("cotizacionesCount").textContent = `${data.cotizaciones.length} almacenadas`;
+        }
+
+        renderCotizaciones();
+    </script>
+</body>
+</html>
