@@ -88,6 +88,8 @@
         .footer { text-align: center; margin-top: 22px; color: #2b4c63; font-weight: 700; }
         .badge { padding: 3px 8px; background: var(--muted); border-radius: 999px; border: 1px solid var(--border); font-size: 11px; color: #2b4c63; }
         .pdf-hidden { display: none !important; }
+        .print-template { display: none; }
+        .print-template.active-print { display: block; position: absolute; inset: 0; margin: auto; z-index: -1; }
         
         @media (max-width: 900px) {
             body { padding: 12px; }
@@ -245,6 +247,90 @@
         <div class="footer">¡Gracias por tu preferencia!</div>
     </div>
 
+    <div id="pdfTemplate" class="page print-template">
+        <div class="top-bar">
+            <div class="brand">
+                <div class="brand-mark">IQ</div>
+                <div class="brand-name">
+                    <h3>INQUISERCO</h3>
+                    <small>Ingeniería Química y Servicios</small>
+                </div>
+            </div>
+            <div class="quote-title">COTIZACIÓN</div>
+        </div>
+
+        <div class="meta-grid">
+            <div>
+                <label>N° de Cotización</label>
+                <div class="input-lite" id="pdfQuoteNumber"></div>
+            </div>
+            <div>
+                <label>Fecha</label>
+                <div class="input-lite" id="pdfIssueDate"></div>
+            </div>
+            <div>
+                <label>Validez hasta</label>
+                <div class="input-lite" id="pdfValidity"></div>
+            </div>
+            <div>
+                <label>Moneda</label>
+                <div class="input-lite" id="pdfCurrency"></div>
+            </div>
+        </div>
+
+        <div class="section-title">Datos de la empresa</div>
+        <div class="info-card">
+            <div class="info-grid">
+                <div class="info-row"><span class="info-label">Empresa:</span><span>Ingenieros Químicos y Servicios de la Costa</span></div>
+                <div class="info-row"><span class="info-label">Teléfono:</span><span>7039020</span></div>
+                <div class="info-row"><span class="info-label">NIT:</span><span>7070220021</span></div>
+                <div class="info-row"><span class="info-label">Dirección:</span><span>San Isidro - Calle 77B #12A</span></div>
+                <div class="info-row"><span class="info-label">Correo:</span><span>inquisercos@gmail.com</span></div>
+                <div class="info-row"><span class="info-label">Ciudad:</span><span>Soledad</span></div>
+            </div>
+        </div>
+
+        <div class="section-title">Datos del cliente</div>
+        <div class="info-card">
+            <div class="info-row"><span class="info-label">Empresa:</span><span id="pdfClientName">-</span></div>
+            <div class="info-row"><span class="info-label">Cargo / contacto:</span><span id="pdfClientContact">-</span></div>
+            <div class="info-row"><span class="info-label">Productos:</span><span id="pdfClientProducts">-</span></div>
+            <div class="info-row"><span class="info-label">Dirección:</span><span id="pdfClientAddress">-</span></div>
+            <div class="info-row"><span class="info-label">Teléfono:</span><span id="pdfClientPhone">-</span></div>
+            <div class="info-row"><span class="info-label">Correo:</span><span id="pdfClientEmail">-</span></div>
+            <div class="info-row"><span class="info-label">Ciudad / sede:</span><span id="pdfClientCity">-</span></div>
+        </div>
+
+        <div class="section-title">Cuerpo</div>
+        <div class="info-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 90px;">Ítem</th>
+                        <th>Descripción</th>
+                        <th style="width: 90px;">Cantidad</th>
+                        <th style="width: 140px;">P. Unitario</th>
+                        <th style="width: 140px;">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="pdfItems"></tbody>
+            </table>
+
+            <table class="totals">
+                <tr><td>Subtotal</td><td id="pdfSubtotal">$0</td></tr>
+                <tr><td>IVA (19%)</td><td id="pdfIva">$0</td></tr>
+                <tr><td>Total</td><td id="pdfTotal">$0</td></tr>
+            </table>
+        </div>
+
+        <div class="section-title">Notas</div>
+        <div class="info-card">
+            <div class="notes" id="pdfNotes"></div>
+        </div>
+
+        <div class="footer">¡Gracias por tu preferencia!</div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script>
@@ -307,6 +393,21 @@
             document.getElementById("itemCode").focus();
         }
 
+        function prepararFila(row, item) {
+            const total = item.qty * item.price;
+            row.dataset.qty = item.qty;
+            row.dataset.price = item.price;
+            row.innerHTML = `
+                <td>${item.code || "-"}</td>
+                <td>${item.desc}</td>
+                <td style="text-align:center;">${item.qty}</td>
+                <td style="text-align:right;">${formatter().format(item.price)}</td>
+                <td style="text-align:right;">${formatter().format(total)}</td>
+                <td style="text-align:center;">
+                    <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="borrarFila(this)">Borrar</button>
+                </td>`;
+        }
+
         function agregarItem() {
             const code = document.getElementById("itemCode").value.trim();
             const desc = selectArticulo.options[selectArticulo.selectedIndex]?.text?.trim() || selectArticulo.value.trim();
@@ -318,17 +419,8 @@
                 return;
             }
 
-            const total = qty * price;
             const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${code || "-"}</td>
-                <td>${desc}</td>
-                <td style="text-align:center;">${qty}</td>
-                <td style="text-align:right;">${formatter().format(price)}</td>
-                <td style="text-align:right;">${formatter().format(total)}</td>
-                <td style="text-align:center;">
-                    <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="borrarFila(this)">Borrar</button>
-                </td>`;
+            prepararFila(row, { code, desc, qty, price });
             tableBody.appendChild(row);
             limpiarItem();
             calcularTotales();
@@ -336,16 +428,7 @@
 
         function insertarFila(item) {
             const row = document.createElement("tr");
-            const total = item.qty * item.price;
-            row.innerHTML = `
-                <td>${item.code || "-"}</td>
-                <td>${item.desc}</td>
-                <td style="text-align:center;">${item.qty}</td>
-                <td style="text-align:right;">${formatter().format(item.price)}</td>
-                <td style="text-align:right;">${formatter().format(total)}</td>
-                <td style="text-align:center;">
-                    <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="borrarFila(this)">Borrar</button>
-                </td>`;
+            prepararFila(row, item);
             tableBody.appendChild(row);
         }
 
@@ -355,12 +438,8 @@
         }
 
         function calcularTotales() {
-            let subtotal = 0;
-            for (const row of tableBody.querySelectorAll("tr")) {
-                const qty = parseFloat(row.cells[2].textContent) || 0;
-                const price = parseFloat(row.cells[3].textContent.replace(/[^\d.,-]/g, "").replace(/,/g, "")) || 0;
-                subtotal += qty * price;
-            }
+            const items = obtenerItems();
+            const subtotal = items.reduce((acc, item) => acc + (item.qty * item.price), 0);
             const iva = subtotal * 0.19;
             const total = subtotal + iva;
             subtotalEl.textContent = formatCurrency(subtotal);
@@ -370,12 +449,7 @@
         }
 
         function cambiarMoneda() {
-            const items = Array.from(tableBody.querySelectorAll("tr")).map(row => ({
-                code: row.cells[0].textContent,
-                desc: row.cells[1].textContent,
-                qty: parseFloat(row.cells[2].textContent),
-                price: parseFloat(row.cells[3].textContent.replace(/[^\d.,-]/g, "").replace(/,/g, "")),
-            }));
+            const items = obtenerItems();
             tableBody.innerHTML = "";
             items.forEach(insertarFila);
             calcularTotales();
@@ -436,8 +510,8 @@
             return Array.from(tableBody.querySelectorAll("tr")).map(row => ({
                 code: row.cells[0].textContent,
                 desc: row.cells[1].textContent,
-                qty: parseFloat(row.cells[2].textContent),
-                price: parseFloat(row.cells[3].textContent.replace(/[^\d.,-]/g, "").replace(/,/g, "")),
+                qty: parseFloat(row.dataset.qty ?? row.cells[2].textContent),
+                price: parseFloat(row.dataset.price ?? row.cells[3].textContent.replace(/[^\d.,-]/g, "").replace(/,/g, "")),
             }));
         }
 
@@ -538,6 +612,39 @@
             document.getElementById("cotizacionesCount").textContent = `${data.cotizaciones.length} almacenadas`;
         }
 
+        function prepararPlantillaPDF(cotizacion) {
+            document.getElementById("pdfQuoteNumber").textContent = cotizacion.numero;
+            document.getElementById("pdfIssueDate").textContent = cotizacion.fecha;
+            document.getElementById("pdfValidity").textContent = cotizacion.validez;
+            document.getElementById("pdfCurrency").textContent = cotizacion.moneda;
+            document.getElementById("pdfClientName").textContent = cotizacion.cliente.empresa || "-";
+            document.getElementById("pdfClientContact").textContent = cotizacion.cliente.cargo || "-";
+            document.getElementById("pdfClientProducts").textContent = cotizacion.cliente.productos || "-";
+            document.getElementById("pdfClientAddress").textContent = cotizacion.cliente.direccion || "-";
+            document.getElementById("pdfClientPhone").textContent = cotizacion.cliente.telefono || "-";
+            document.getElementById("pdfClientEmail").textContent = cotizacion.cliente.correo || "-";
+            document.getElementById("pdfClientCity").textContent = cotizacion.cliente.ciudad || "-";
+            document.getElementById("pdfNotes").textContent = cotizacion.notas;
+
+            const pdfItemsBody = document.getElementById("pdfItems");
+            pdfItemsBody.innerHTML = "";
+            cotizacion.items.forEach(item => {
+                const total = item.qty * item.price;
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.code || "-"}</td>
+                    <td>${item.desc}</td>
+                    <td style="text-align:center;">${item.qty}</td>
+                    <td style="text-align:right;">${formatCurrency(item.price, cotizacion.moneda)}</td>
+                    <td style="text-align:right;">${formatCurrency(total, cotizacion.moneda)}</td>`;
+                pdfItemsBody.appendChild(row);
+            });
+
+            document.getElementById("pdfSubtotal").textContent = formatCurrency(cotizacion.totales.subtotal, cotizacion.moneda);
+            document.getElementById("pdfIva").textContent = formatCurrency(cotizacion.totales.iva, cotizacion.moneda);
+            document.getElementById("pdfTotal").textContent = formatCurrency(cotizacion.totales.total, cotizacion.moneda);
+        }
+
         async function generarPDF() {
             if (tableBody.children.length === 0) {
                 alert("Agrega al menos un ítem antes de generar PDF.");
@@ -547,18 +654,18 @@
             await Promise.resolve(calcularTotales());
             const cotizacionGuardada = guardarCotizacion({ silent: true, skipIncrement: true });
             if (!cotizacionGuardada) return;
-            const seccionesOcultables = document.querySelectorAll(".hide-on-pdf");
-            seccionesOcultables.forEach(el => el.classList.add("pdf-hidden"));
+            prepararPlantillaPDF(cotizacionGuardada);
+            const plantilla = document.getElementById("pdfTemplate");
+            plantilla.classList.add("active-print");
             const { jsPDF } = window.jspdf;
-            const pagina = document.querySelector(".page");
-            const canvas = await html2canvas(pagina, { scale: 2 });
+            const canvas = await html2canvas(plantilla, { scale: 2 });
             const imgData = canvas.toDataURL("image/png");
             const pageWidth = 612; // ancho carta en pt
             const imgHeight = canvas.height * (pageWidth / canvas.width);
             const pdf = new jsPDF("p", "pt", [pageWidth, imgHeight]);
             pdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeight);
             pdf.save(`cotizacion-${document.getElementById("quoteNumber").value}.pdf`);
-            seccionesOcultables.forEach(el => el.classList.remove("pdf-hidden"));
+            plantilla.classList.remove("active-print");
             siguienteConsecutivo();
         }
 
@@ -570,9 +677,6 @@
             renderSelectArticulos();
             renderSelectClientes();
             renderCotizaciones();
-            if (tableBody.children.length === 0) {
-                insertarFila({ code: "2", desc: "VENTILADOR INDUSTRIAL DE PARED INSTALADO", qty: 2, price: 495000 });
-            }
             calcularTotales();
         }
 
