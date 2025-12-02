@@ -111,7 +111,7 @@
             <div class="quote-title">COTIZACIÓN</div>
         </div>
 
-        <nav>
+        <nav class="hide-on-pdf">
             <a class="active" href="index.html">Cotización</a>
             <a href="articulos.html">Artículos</a>
             <a href="clientes.html">Clientes</a>
@@ -222,7 +222,7 @@
                 Los valores no incluyen piezas adicionales por servicios de emergencia ni redes eléctricas.
             </div>
         </div>
-        <div class="actions" style="justify-content: flex-end;">
+        <div class="actions hide-on-pdf" style="justify-content: flex-end;">
             <button class="btn secondary" onclick="guardarCotizacion()">Guardar cotización</button>
             <button class="btn primary" onclick="generarPDF()">Generar PDF</button>
         </div>
@@ -441,10 +441,10 @@
             }));
         }
 
-        function guardarCotizacion() {
+        function guardarCotizacion({ silent = false, skipIncrement = false } = {}) {
             if (tableBody.children.length === 0) {
                 alert("Agrega al menos un ítem a la cotización.");
-                return;
+                return null;
             }
             const totales = calcularTotales();
             const cotizacion = {
@@ -465,11 +465,21 @@
                 notas: document.getElementById("notes").innerText.trim(),
                 totales: totales,
             };
-            data.cotizaciones.push(cotizacion);
+            const existente = data.cotizaciones.findIndex(c => String(c.numero) === String(cotizacion.numero));
+            if (existente >= 0) {
+                data.cotizaciones[existente] = cotizacion;
+            } else {
+                data.cotizaciones.push(cotizacion);
+            }
             persistir(storage.cotizaciones, data.cotizaciones);
             renderCotizaciones();
-            siguienteConsecutivo();
-            alert("Cotización guardada.");
+            if (!skipIncrement) {
+                siguienteConsecutivo();
+            }
+            if (!silent) {
+                alert("Cotización guardada.");
+            }
+            return cotizacion;
         }
 
         function cargarCotizacionPorIndice(index) {
@@ -535,6 +545,8 @@
             }
 
             await Promise.resolve(calcularTotales());
+            const cotizacionGuardada = guardarCotizacion({ silent: true, skipIncrement: true });
+            if (!cotizacionGuardada) return;
             const seccionesOcultables = document.querySelectorAll(".hide-on-pdf");
             seccionesOcultables.forEach(el => el.classList.add("pdf-hidden"));
             const { jsPDF } = window.jspdf;
@@ -547,6 +559,7 @@
             pdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeight);
             pdf.save(`cotizacion-${document.getElementById("quoteNumber").value}.pdf`);
             seccionesOcultables.forEach(el => el.classList.remove("pdf-hidden"));
+            siguienteConsecutivo();
         }
 
         currencyElement.addEventListener("change", cambiarMoneda);
