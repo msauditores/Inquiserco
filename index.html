@@ -172,7 +172,7 @@
                 <select class="input-lite" id="selectCliente"></select>
                 <span class="badge" id="clientesCount">0 registrados</span>
             </div>
-            <div class="info-row"><span class="info-label">Productos:</span><input class="input-lite" id="clientProducts" placeholder="Categorías requeridas" /></div>
+            <div class="info-row"><span class="info-label">Cliente:</span><input class="input-lite" id="clientName" placeholder="Nombre del cliente" /></div>
             <div class="info-row"><span class="info-label">Dirección:</span><input class="input-lite" id="clientAddress" placeholder="Dirección del cliente" /></div>
             <div class="info-row"><span class="info-label">Teléfono:</span><input class="input-lite" id="clientPhone" placeholder="Teléfono" /></div>
             <div class="info-row"><span class="info-label">Correo:</span><input class="input-lite" id="clientEmail" placeholder="Correo" /></div>
@@ -484,6 +484,7 @@
             const index = parseInt(selectCliente.value, 10);
             if (Number.isNaN(index)) return;
             const cliente = data.clientes[index];
+            if (!cliente) return;
             document.getElementById("clientName").value = cliente.empresa;
             document.getElementById("clientAddress").value = cliente.direccion || "";
             document.getElementById("clientEmail").value = cliente.correo || "";
@@ -550,6 +551,8 @@
         function cargarCotizacionPorIndice(index) {
             const cot = data.cotizaciones[index];
             if (!cot) return;
+            const indiceCliente = data.clientes.findIndex(c => c.empresa === cot.cliente.empresa);
+            selectCliente.value = indiceCliente >= 0 ? indiceCliente : "";
             document.getElementById("quoteNumber").value = cot.numero;
             document.getElementById("issueDate").value = cot.fecha;
             document.getElementById("validity").value = cot.validez;
