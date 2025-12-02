@@ -5,168 +5,506 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cotización</title>
     <style>
-        /* Estilo básico */
+        :root {
+            --primary: #0296c2;
+            --secondary: #0066a1;
+            --accent: #00b4e5;
+            --text: #262626;
+            --muted: #f2f7fb;
+            --border: #d9e5f0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            background: #eef2f6;
+            color: var(--text);
             margin: 0;
-            padding: 0;
+            padding: 24px;
         }
-        .container {
-            max-width: 900px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+        h1, h2, h3 {
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 0.2px;
         }
-        h1, h2 {
-            text-align: center;
+
+        .page {
+            max-width: 1050px;
+            margin: 0 auto;
+            background: white;
+            padding: 32px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.15);
+            border-radius: 12px;
         }
-        .form-group {
-            margin-bottom: 15px;
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid var(--secondary);
+            padding-bottom: 18px;
+            margin-bottom: 18px;
         }
-        label {
-            font-weight: bold;
-            display: block;
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        input, select, button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        .btn {
-            background-color: #4CAF50;
+
+        .brand-mark {
+            width: 46px;
+            height: 46px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
             color: white;
-            border: none;
-            cursor: pointer;
+            font-weight: 800;
+            font-size: 22px;
+            letter-spacing: 1px;
         }
-        .btn:hover {
-            background-color: #45a049;
+
+        .brand-name {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
-        .table {
+
+        .brand-name small {
+            text-transform: uppercase;
+            font-size: 12px;
+            color: #4a5568;
+            letter-spacing: 1px;
+        }
+
+        .quote-title {
+            font-size: 26px;
+            color: var(--secondary);
+            letter-spacing: 1px;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 14px 28px;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            background: var(--muted);
+            border-radius: 10px;
+            margin-bottom: 18px;
+        }
+
+        .meta-grid label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #4a5568;
+            letter-spacing: 0.3px;
+        }
+
+        .meta-grid input, .meta-grid select {
+            width: 100%;
+            padding: 9px 10px;
+            margin-top: 6px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .section-title {
+            background: var(--secondary);
+            color: white;
+            padding: 10px 14px;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .info-card {
+            border: 1px solid var(--border);
+            border-top: 0;
+            border-radius: 0 0 8px 8px;
+            padding: 14px 16px 10px;
+            margin-bottom: 18px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 12px 18px;
+        }
+
+        .info-row {
+            display: flex;
+            gap: 8px;
+            font-size: 14px;
+            align-items: baseline;
+        }
+
+        .info-label {
+            min-width: 120px;
+            color: #4a5568;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .input-lite {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 8px;
         }
-        .table th, .table td {
-            padding: 10px;
-            text-align: left;
-            border: 1px solid #ddd;
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 10px 12px;
+            font-size: 14px;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f0f7fb;
+            color: #2b4c63;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-weight: 800;
+        }
+
+        tbody tr:nth-child(even) {
+            background: white;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            transition: transform 0.1s ease, box-shadow 0.15s ease;
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            color: white;
+            box-shadow: 0 12px 24px rgba(0, 150, 199, 0.25);
+        }
+
+        .btn.secondary {
+            background: white;
+            color: var(--secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+
+        .items-form {
+            display: grid;
+            grid-template-columns: 1fr 2fr repeat(2, 1fr) 140px;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            align-items: end;
+            margin-bottom: 12px;
+        }
+
+        .items-form label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #4a5568;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .items-form input {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .totals {
+            width: 320px;
+            margin-left: auto;
+            margin-top: 12px;
+        }
+
+        .totals tr td:last-child {
+            text-align: right;
+            font-weight: 700;
+        }
+
+        .totals tr:last-child td {
+            font-size: 17px;
+            color: var(--secondary);
+        }
+
+        .notes {
+            background: var(--muted);
+            border: 1px dashed var(--border);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #425466;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 22px;
+            color: #2b4c63;
+            font-weight: 700;
+        }
+
+        @media (max-width: 900px) {
+            body { padding: 12px; }
+            .page { padding: 20px; }
+            .items-form { grid-template-columns: 1fr; }
+            .meta-grid { grid-template-columns: 1fr; }
+            .totals { width: 100%; }
         }
     </style>
 </head>
-<body>
+<body>    <div class="page">
+        <div class="top-bar">
+            <div class="brand">
+                <div class="brand-mark">IQ</div>
+                <div class="brand-name">
+                    <h3>INQUISERCO</h3>
+                    <small>Ingeniería Química y Servicios</small>
+                </div>
+            </div>
+            <div class="quote-title">COTIZACIÓN</div>
+        </div>
 
-    <div class="container">
-        <h1>Cotización</h1>
-        <h2>Datos de la empresa y cliente</h2>
+    
+        <div class="meta-grid">
+            <div>
+                <label for="quoteNumber">N° de Cotización</label>
+                <input id="quoteNumber" type="text" value="113" />
+            </div>
+            <div>
+                <label for="issueDate">Fecha</label>
+                <input id="issueDate" type="date" />
+            </div>
+            <div>
+                <label for="validity">Validez hasta</label>
+                <input id="validity" type="date" />
+            </div>
+            <div>
+                <label for="currency">Moneda</label>
+                <select id="currency">
+                    <option value="COP" selected>Peso colombiano (COP)</option>
+                    <option value="USD">Dólar estadounidense (USD)</option>
+                    <option value="EUR">Euro (EUR)</option>
+                </select>
+            </div>
+        </div>
 
-        <!-- Formulario de Cotización -->
-        <div class="form-group">
-            <label for="cliente">Cliente:</label>
-            <input type="text" id="cliente" placeholder="Nombre del Cliente" required>
+        <div class="section-title">Datos de la empresa</div>
+        <div class="info-card">
+            <div class="info-grid">
+                <div class="info-row"><span class="info-label">Empresa:</span><span>Ingenieros Químicos y Servicios de la Costa</span></div>
+                <div class="info-row"><span class="info-label">Teléfono:</span><span>7039020</span></div>
+                <div class="info-row"><span class="info-label">NIT:</span><span>7070220021</span></div>
+                <div class="info-row"><span class="info-label">Dirección:</span><span>San Isidro - Calle 77B #12A</span></div>
+                <div class="info-row"><span class="info-label">Correo:</span><span>inquisercos@gmail.com</span></div>
+                <div class="info-row"><span class="info-label">Ciudad:</span><span>Soledad</span></div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="fecha">Fecha:</label>
-            <input type="date" id="fecha" required>
-        </div>
-        <div class="form-group">
-            <label for="servicio">Servicio:</label>
-            <select id="servicio" required>
-                <option value="">Seleccione un servicio</option>
-                <!-- Aquí se llenarán los servicios desde el backend -->
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="cantidad">Cantidad:</label>
-            <input type="number" id="cantidad" placeholder="Cantidad" required>
-        </div>
-        <button class="btn" onclick="agregarServicio()">Agregar Servicio</button>
 
-        <!-- Tabla de Servicios Agregados -->
-        <h2>Servicios Seleccionados</h2>
-        <table class="table" id="tablaServicios">
-            <thead>
-                <tr>
-                    <th>Descripción</th>
-                    <th>Cantidad</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-        <!-- Totales -->
-        <h2>Totales</h2>
-        <div>
-            <p>Subtotal: <span id="subtotal">0</span></p>
-            <p>IVA: <span id="iva">0</span></p>
-            <p>Total: <span id="total">0</span></p>
+        <div class="section-title">Datos del cliente</div>
+        <div class="info-card">
+            <div class="info-row"><span class="info-label">Empresa:</span><input class="input-lite" id="clientName" placeholder="Nombre de la empresa" value="PQT DEL CARIBE SA" /></div>
+            <div class="info-row"><span class="info-label">Cargo:</span><input class="input-lite" id="clientContact" placeholder="Contacto y cargo" value="Ing. Olga Tuma" /></div>
+            <div class="info-row"><span class="info-label">Productos:</span><input class="input-lite" id="clientProducts" placeholder="Categorías requeridas" value="Iluminación, Data e Industrial" /></div>
+            <div class="info-row"><span class="info-label">Dirección:</span><input class="input-lite" id="clientAddress" placeholder="Dirección del cliente" value="Cra 43 #77-144 loc 1" /></div>
+            <div class="info-row"><span class="info-label">Teléfono:</span><input class="input-lite" id="clientPhone" placeholder="Teléfono" value="(5) 3361999" /></div>
+            <div class="info-row"><span class="info-label">Correo:</span><input class="input-lite" id="clientEmail" placeholder="Correo" value="pqtnelectrica@gmail.com" /></div>
+            <div class="info-row"><span class="info-label">Ciudad:</span><input class="input-lite" id="clientCity" placeholder="Ciudad" value="Barranquilla" /></div>
         </div>
+
+        <div class="section-title">Cuerpo</div>
+        <div class="info-card">
+            <div class="items-form">
+                <div>
+                    <label for="itemCode">Ítem</label>
+                    <input id="itemCode" type="text" placeholder="Código" />
+                </div>
+                <div>
+                    <label for="itemDesc">Descripción</label>
+                    <input id="itemDesc" type="text" placeholder="Descripción del producto o servicio" />
+                </div>
+                <div>
+                    <label for="itemQty">Cantidad</label>
+                    <input id="itemQty" type="number" min="1" value="1" />
+                </div>
+                <div>
+                    <label for="itemPrice">Precio unitario</label>
+                    <input id="itemPrice" type="number" min="0" step="0.01" value="0" />
+                </div>
+                <div class="actions">
+                    <button class="btn secondary" onclick="limpiarItem()">Limpiar</button>
+                    <button class="btn primary" onclick="agregarItem()">Agregar ítem</button>
+                </div>
+            </div>
+
+            <table id="itemsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 90px;">Ítem</th>
+                        <th>Descripción</th>
+                        <th style="width: 90px;">Cantidad</th>
+                        <th style="width: 140px;">P. Unitario</th>
+                        <th style="width: 140px;">Total</th>
+                        <th style="width: 80px;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <table class="totals">
+                <tr><td>Subtotal</td><td id="subtotal">$0</td></tr>
+                <tr><td>IVA (19%)</td><td id="iva">$0</td></tr>
+                <tr><td>Total</td><td id="total">$0</td></tr>
+            </table>
+        </div>
+
+        <div class="section-title">Notas</div>
+        <div class="info-card">
+            <div class="notes" id="notes">
+                Tener en cuenta el montaje sujeto a verificación y dimensionamiento de bases existentes.
+                La garantía no cubre daños por agua, voltajes diferentes o mala instalación.
+                La instalación no incluye trabajos eléctricos ni redes; se cobra aparte.
+                Los valores no incluyen piezas adicionales por servicios de emergencia ni redes eléctricas.
+            </div>
+        </div>
+
+        <div class="actions" style="justify-content: flex-end;">
+            <button class="btn secondary" onclick="window.print()">Imprimir / PDF</button>
+        </div>
+    
+        <div class="footer">¡Gracias por tu preferencia!</div>
     </div>
 
     <script>
-        // Este array simula los datos de servicios que podrían venir del backend
-        const servicios = [
-            { id: 1, descripcion: "Ventilador de pared", precio_unitario: 495000 },
-            { id: 2, descripcion: "Aire acondicionado", precio_unitario: 1200000 },
+        const currencyElement = document.getElementById("currency");
+        const tableBody = document.querySelector("#itemsTable tbody");
+        const subtotalEl = document.getElementById("subtotal");
+        const ivaEl = document.getElementById("iva");
+        const totalEl = document.getElementById("total");
+
+        const defaultItems = [
+            { code: "2", desc: "VENTILADOR INDUSTRIAL DE PARED INSTALADO", qty: 2, price: 495000 },
         ];
 
-        // Llenar el select con los servicios
-        const servicioSelect = document.getElementById("servicio");
-        servicios.forEach(servicio => {
-            const option = document.createElement("option");
-            option.value = servicio.id;
-            option.textContent = servicio.descripcion;
-            servicioSelect.appendChild(option);
+        document.getElementById("issueDate").valueAsDate = new Date();
+        const validityDate = new Date();
+        validityDate.setMonth(validityDate.getMonth() + 2);
+        document.getElementById("validity").valueAsDate = validityDate;
+
+        const formatter = () => new Intl.NumberFormat("es-CO", {
+            style: "currency",
+            currency: currencyElement.value,
+            minimumFractionDigits: 0,
         });
 
-        // Función para agregar el servicio seleccionado a la tabla
-        function agregarServicio() {
-            const cliente = document.getElementById("cliente").value;
-            const fecha = document.getElementById("fecha").value;
-            const servicioId = document.getElementById("servicio").value;
-            const cantidad = document.getElementById("cantidad").value;
+        function limpiarItem() {
+            document.getElementById("itemCode").value = "";
+            document.getElementById("itemDesc").value = "";
+            document.getElementById("itemQty").value = 1;
+            document.getElementById("itemPrice").value = 0;
+            document.getElementById("itemCode").focus();
+        }
 
-            if (!cliente || !fecha || !servicioId || !cantidad) {
-                alert("Por favor complete todos los campos.");
+        function agregarItem() {
+            const code = document.getElementById("itemCode").value.trim();
+            const desc = document.getElementById("itemDesc").value.trim();
+            const qty = parseFloat(document.getElementById("itemQty").value);
+            const price = parseFloat(document.getElementById("itemPrice").value);
+
+            if (!desc || Number.isNaN(qty) || Number.isNaN(price)) {
+                alert("Completa todos los campos del ítem antes de agregarlo.");
                 return;
             }
 
-            const servicioSeleccionado = servicios.find(serv => serv.id == servicioId);
-            const precioTotal = servicioSeleccionado.precio_unitario * cantidad;
+           insertarFila({ code, desc, qty, price });
+            limpiarItem();
+        }
 
-            // Agregar a la tabla
-            const tbody = document.getElementById("tablaServicios").getElementsByTagName("tbody")[0];
-            const row = tbody.insertRow();
+        function insertarFila({ code, desc, qty, price }) {
+            const row = document.createElement("tr");
+            const total = qty * price;
             row.innerHTML = `
-                <td>${servicioSeleccionado.descripcion}</td>
-                <td>${cantidad}</td>
-                <td>${precioTotal}</td>
+                <td>${code || "-"}</td>
+                <td>${desc}</td>
+                <td style="text-align:center;">${qty}</td>
+                <td style="text-align:right;">${formatter().format(price)}</td>
+                <td style="text-align:right;">${formatter().format(total)}</td>
+                <td style="text-align:center;">
+                    <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="eliminarFila(this)">Eliminar</button>
+                </td>
             `;
-
-            // Calcular totales
+            tableBody.appendChild(row);
+            calcularTotales();
+        }
+        
+        function eliminarFila(button) {
+            const row = button.closest("tr");
+            row.remove();
             calcularTotales();
         }
 
-        // Función para calcular totales
+        
         function calcularTotales() {
             let subtotal = 0;
-            const rows = document.getElementById("tablaServicios").getElementsByTagName("tbody")[0].rows;
-            for (let i = 0; i < rows.length; i++) {
-                subtotal += parseFloat(rows[i].cells[2].textContent);
-            }
+            Array.from(tableBody.querySelectorAll("tr")).forEach(row => {
+                const totalCell = row.cells[4];
+                const rawValue = parseFloat(totalCell.textContent.replace(/[^\d.,-]/g, "").replace(/,/g, ""));
+                subtotal += Number.isNaN(rawValue) ? 0 : rawValue;
+            });
+            const iva = subtotal * 0.19;
 
-            const iva = subtotal * 0.19; // 19% de IVA
-            const total = subtotal + iva;
-
-            // Mostrar totales
-            document.getElementById("subtotal").textContent = subtotal.toFixed(2);
-            document.getElementById("iva").textContent = iva.toFixed(2);
-            document.getElementById("total").textContent = total.toFixed(2);
+            subtotalEl.textContent = formatter().format(subtotal);
+            ivaEl.textContent = formatter().format(iva);
+            totalEl.textContent = formatter().format(total);
         }
+
+        function cambiarMoneda() {
+            // Recalcula solo con el nuevo formateador; los valores ya están en números puros.
+            Array.from(tableBody.querySelectorAll("tr")).forEach(row => {
+                const qty = parseFloat(row.cells[2].textContent);
+                const price = parseFloat(row.cells[3].textContent.replace(/[^\d.,-]/g, "").replace(/,/g, ""));
+                const total = qty * price;
+                row.cells[3].textContent = formatter().format(price);
+                row.cells[4].textContent = formatter().format(total);
+            });
+            calcularTotales();
+        }
+
+        currencyElement.addEventListener("change", cambiarMoneda);
+
+        defaultItems.forEach(insertarFila);
     </script>
 </body>
 </html>
