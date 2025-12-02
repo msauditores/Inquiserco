@@ -126,6 +126,7 @@
 
         <nav class="hide-on-pdf">
             <a class="active" href="index.html">Cotización</a>
+            <a href="cotizaciones.html">Cotizaciones</a>
             <a href="articulos.html">Artículos</a>
             <a href="clientes.html">Clientes</a>
         </nav>
@@ -171,8 +172,6 @@
                 <select class="input-lite" id="selectCliente"></select>
                 <span class="badge" id="clientesCount">0 registrados</span>
             </div>
-            <div class="info-row"><span class="info-label">Empresa:</span><input class="input-lite" id="clientName" placeholder="Nombre de la empresa" /></div>
-            <div class="info-row"><span class="info-label">Cargo / contacto:</span><input class="input-lite" id="clientContact" placeholder="Contacto y cargo" /></div>
             <div class="info-row"><span class="info-label">Productos:</span><input class="input-lite" id="clientProducts" placeholder="Categorías requeridas" /></div>
             <div class="info-row"><span class="info-label">Dirección:</span><input class="input-lite" id="clientAddress" placeholder="Dirección del cliente" /></div>
             <div class="info-row"><span class="info-label">Teléfono:</span><input class="input-lite" id="clientPhone" placeholder="Teléfono" /></div>
@@ -240,21 +239,6 @@
             <button class="btn primary" onclick="generarPDF()">Generar PDF</button>
         </div>
 
-        <div class="section-title hide-on-pdf">Cotizaciones guardadas</div>
-        <div class="info-card hide-on-pdf">
-            <div class="actions" style="align-items: center;">
-                <input id="buscarCotizacion" type="number" min="1" placeholder="N° a buscar" style="width:160px;" />
-                <button class="btn secondary" onclick="buscarCotizacion()">Buscar y cargar</button>
-                <span class="badge" id="cotizacionesCount">0 almacenadas</span>
-            </div>
-            <table class="data-table" id="tablaCotizaciones">
-                <thead>
-                    <tr><th>N°</th><th>Cliente</th><th>Fecha</th><th>Moneda</th><th>Total</th><th>Acciones</th></tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
         <div class="footer">¡Gracias por tu preferencia!</div>
     </div>
 
@@ -303,12 +287,10 @@
 
         <div class="section-title">Datos del cliente</div>
         <div class="info-card">
-            <div class="info-row"><span class="info-label">Empresa:</span><span id="pdfClientName">-</span></div>
-            <div class="info-row"><span class="info-label">Cargo / contacto:</span><span id="pdfClientContact">-</span></div>
-            <div class="info-row"><span class="info-label">Productos:</span><span id="pdfClientProducts">-</span></div>
-            <div class="info-row"><span class="info-label">Dirección:</span><span id="pdfClientAddress">-</span></div>
-            <div class="info-row"><span class="info-label">Teléfono:</span><span id="pdfClientPhone">-</span></div>
-            <div class="info-row"><span class="info-label">Correo:</span><span id="pdfClientEmail">-</span></div>
+        <div class="info-row"><span class="info-label">Empresa:</span><span id="pdfClientName">-</span></div>
+        <div class="info-row"><span class="info-label">Dirección:</span><span id="pdfClientAddress">-</span></div>
+        <div class="info-row"><span class="info-label">Teléfono:</span><span id="pdfClientPhone">-</span></div>
+        <div class="info-row"><span class="info-label">Correo:</span><span id="pdfClientEmail">-</span></div>
             <div class="info-row"><span class="info-label">Ciudad / sede:</span><span id="pdfClientCity">-</span></div>
         </div>
 
@@ -357,6 +339,7 @@
             articulos: "inquiserco_articulos",
             clientes: "inquiserco_clientes",
             cotizaciones: "inquiserco_cotizaciones",
+            cotizacionPendiente: "inquiserco_cotizacion_pendiente",
             consecutivo: "inquiserco_consecutivo",
         };
 
@@ -539,8 +522,6 @@
                 moneda: currencyElement.value,
                 cliente: {
                     empresa: document.getElementById("clientName").value,
-                    cargo: document.getElementById("clientContact").value,
-                    productos: document.getElementById("clientProducts").value,
                     direccion: document.getElementById("clientAddress").value,
                     telefono: document.getElementById("clientPhone").value,
                     correo: document.getElementById("clientEmail").value,
@@ -557,7 +538,6 @@
                 data.cotizaciones.push(cotizacion);
             }
             persistir(storage.cotizaciones, data.cotizaciones);
-            renderCotizaciones();
             if (!skipIncrement) {
                 siguienteConsecutivo();
             }
@@ -575,8 +555,6 @@
             document.getElementById("validity").value = cot.validez;
             currencyElement.value = cot.moneda;
             document.getElementById("clientName").value = cot.cliente.empresa;
-            document.getElementById("clientContact").value = cot.cliente.cargo;
-            document.getElementById("clientProducts").value = cot.cliente.productos;
             document.getElementById("clientAddress").value = cot.cliente.direccion;
             document.getElementById("clientPhone").value = cot.cliente.telefono;
             document.getElementById("clientEmail").value = cot.cliente.correo;
@@ -586,51 +564,12 @@
             calcularTotales();
         }
 
-        function borrarCotizacion(index) {
-            if (!confirm("¿Eliminar esta cotización guardada?")) return;
-            data.cotizaciones.splice(index, 1);
-            persistir(storage.cotizaciones, data.cotizaciones);
-            renderCotizaciones();
-        }
-
-        function buscarCotizacion() {
-            const numero = document.getElementById("buscarCotizacion").value;
-            const index = data.cotizaciones.findIndex(c => String(c.numero) === String(numero));
-            if (index === -1) {
-                alert("No se encontró la cotización solicitada.");
-                return;
-            }
-            cargarCotizacionPorIndice(index);
-        }
-
-        function renderCotizaciones() {
-            const tbody = document.querySelector("#tablaCotizaciones tbody");
-            tbody.innerHTML = "";
-            data.cotizaciones.forEach((cotizacion, index) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${cotizacion.numero}</td>
-                    <td>${cotizacion.cliente?.empresa || "-"}</td>
-                    <td>${cotizacion.fecha}</td>
-                    <td>${cotizacion.moneda}</td>
-                    <td style="text-align:right;">${formatCurrency(cotizacion.totales.total, cotizacion.moneda)}</td>
-                    <td style="text-align:center;">
-                        <button class="btn primary" style="padding:6px 10px;font-size:12px;" onclick="cargarCotizacionPorIndice(${index})">Cargar</button>
-                        <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="borrarCotizacion(${index})">Borrar</button>
-                    </td>`;
-                tbody.appendChild(row);
-            });
-            document.getElementById("cotizacionesCount").textContent = `${data.cotizaciones.length} almacenadas`;
-        }
-
         function prepararPlantillaPDF(cotizacion) {
             document.getElementById("pdfQuoteNumber").textContent = cotizacion.numero;
             document.getElementById("pdfIssueDate").textContent = cotizacion.fecha;
             document.getElementById("pdfValidity").textContent = cotizacion.validez;
             document.getElementById("pdfCurrency").textContent = cotizacion.moneda;
             document.getElementById("pdfClientName").textContent = cotizacion.cliente.empresa || "-";
-            document.getElementById("pdfClientContact").textContent = cotizacion.cliente.cargo || "-";
-            document.getElementById("pdfClientProducts").textContent = cotizacion.cliente.productos || "-";
             document.getElementById("pdfClientAddress").textContent = cotizacion.cliente.direccion || "-";
             document.getElementById("pdfClientPhone").textContent = cotizacion.cliente.telefono || "-";
             document.getElementById("pdfClientEmail").textContent = cotizacion.cliente.correo || "-";
@@ -673,7 +612,7 @@
             const imgData = canvas.toDataURL("image/png");
             const pageWidth = 612; // carta 8.5in en pt
             const pageHeight = 792; // carta 11in en pt
-            const margin = 24;
+            const margin = 12;
             const usableWidth = pageWidth - (margin * 2);
             const usableHeight = pageHeight - (margin * 2);
             const scale = Math.min(usableWidth / canvas.width, usableHeight / canvas.height);
@@ -686,17 +625,40 @@
             pdf.save(`cotizacion-${document.getElementById("quoteNumber").value}.pdf`);
             plantilla.classList.remove("active-print");
             siguienteConsecutivo();
+            limpiarCotizacion();
         }
 
         currencyElement.addEventListener("change", cambiarMoneda);
+
+        function limpiarCotizacion() {
+            document.getElementById("clientName").value = "";
+            document.getElementById("clientAddress").value = "";
+            document.getElementById("clientPhone").value = "";
+            document.getElementById("clientEmail").value = "";
+            document.getElementById("clientCity").value = "";
+            selectCliente.value = "";
+            tableBody.innerHTML = "";
+            limpiarItem();
+            calcularTotales();
+        }
+
+        function intentarCargarPendiente() {
+            const pendiente = localStorage.getItem(storage.cotizacionPendiente);
+            if (!pendiente) return;
+            const index = data.cotizaciones.findIndex(c => String(c.numero) === String(pendiente));
+            if (index >= 0) {
+                cargarCotizacionPorIndice(index);
+            }
+            localStorage.removeItem(storage.cotizacionPendiente);
+        }
 
         function inicializar() {
             initFechas();
             refrescarConsecutivoInicial();
             renderSelectArticulos();
             renderSelectClientes();
-            renderCotizaciones();
             calcularTotales();
+            intentarCargarPendiente();
         }
 
         inicializar();
