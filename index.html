@@ -276,6 +276,78 @@
             font-weight: 700;
         }
 
+        .panel {
+            margin-top: 22px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #f8fbff;
+            padding: 16px;
+        }
+
+        .panel h3 {
+            margin-bottom: 12px;
+            color: var(--secondary);
+        }
+
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 14px 18px;
+        }
+
+        .mini-form label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #4a5568;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .mini-form input {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        .data-table th, .data-table td {
+            border: 1px solid var(--border);
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+
+        .badge {
+            padding: 3px 8px;
+            background: var(--muted);
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            font-size: 11px;
+            color: #2b4c63;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .toolbar input {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
         @media (max-width: 900px) {
             body { padding: 12px; }
             .page { padding: 20px; }
@@ -301,7 +373,7 @@
         <div class="meta-grid">
             <div>
                 <label for="quoteNumber">N° de Cotización</label>
-                <input id="quoteNumber" type="text" value="113" />
+                <input id="quoteNumber" type="text" readonly />
             </div>
             <div>
                 <label for="issueDate">Fecha</label>
@@ -316,7 +388,6 @@
                 <select id="currency">
                     <option value="COP" selected>Peso colombiano (COP)</option>
                     <option value="USD">Dólar estadounidense (USD)</option>
-                    <option value="EUR">Euro (EUR)</option>
                 </select>
             </div>
         </div>
@@ -335,13 +406,13 @@
 
         <div class="section-title">Datos del cliente</div>
         <div class="info-card">
-            <div class="info-row"><span class="info-label">Empresa:</span><input class="input-lite" id="clientName" placeholder="Nombre de la empresa" value="PQT DEL CARIBE SA" /></div>
-            <div class="info-row"><span class="info-label">Cargo:</span><input class="input-lite" id="clientContact" placeholder="Contacto y cargo" value="Ing. Olga Tuma" /></div>
-            <div class="info-row"><span class="info-label">Productos:</span><input class="input-lite" id="clientProducts" placeholder="Categorías requeridas" value="Iluminación, Data e Industrial" /></div>
-            <div class="info-row"><span class="info-label">Dirección:</span><input class="input-lite" id="clientAddress" placeholder="Dirección del cliente" value="Cra 43 #77-144 loc 1" /></div>
-            <div class="info-row"><span class="info-label">Teléfono:</span><input class="input-lite" id="clientPhone" placeholder="Teléfono" value="(5) 3361999" /></div>
-            <div class="info-row"><span class="info-label">Correo:</span><input class="input-lite" id="clientEmail" placeholder="Correo" value="pqtnelectrica@gmail.com" /></div>
-            <div class="info-row"><span class="info-label">Ciudad:</span><input class="input-lite" id="clientCity" placeholder="Ciudad" value="Barranquilla" /></div>
+            <div class="info-row"><span class="info-label">Empresa:</span><input class="input-lite" id="clientName" placeholder="Nombre de la empresa" /></div>
+            <div class="info-row"><span class="info-label">Cargo / contacto:</span><input class="input-lite" id="clientContact" placeholder="Contacto y cargo" /></div>
+            <div class="info-row"><span class="info-label">Productos:</span><input class="input-lite" id="clientProducts" placeholder="Categorías requeridas" /></div>
+            <div class="info-row"><span class="info-label">Dirección:</span><input class="input-lite" id="clientAddress" placeholder="Dirección del cliente" /></div>
+            <div class="info-row"><span class="info-label">Teléfono:</span><input class="input-lite" id="clientPhone" placeholder="Teléfono" /></div>
+            <div class="info-row"><span class="info-label">Correo:</span><input class="input-lite" id="clientEmail" placeholder="Correo" /></div>
+            <div class="info-row"><span class="info-label">Ciudad / sede:</span><input class="input-lite" id="clientCity" placeholder="Ciudad o sede" /></div>
         </div>
 
         <div class="section-title">Cuerpo</div>
@@ -399,14 +470,90 @@
                 Los valores no incluyen piezas adicionales por servicios de emergencia ni redes eléctricas.
             </div>
         </div>
-
         <div class="actions" style="justify-content: flex-end;">
-            <button class="btn secondary" onclick="window.print()">Imprimir / PDF</button>
+            <button class="btn secondary" onclick="guardarCotizacion()">Guardar cotización</button>
+            <button class="btn primary" onclick="generarPDF()">Generar PDF</button>
         </div>
-    
+
+        <div class="panel">
+            <h3>Administración de datos</h3>
+            <div class="panel-grid">
+                <div>
+                    <div class="toolbar">
+                        <strong>Artículos</strong>
+                        <span class="badge" id="articulosCount">0 registrados</span>
+                    </div>
+                    <div class="mini-form">
+                        <label>Código</label>
+                        <input id="articuloCodigo" type="text" placeholder="Código interno" />
+                        <label>Descripción</label>
+                        <input id="articuloNombre" type="text" placeholder="Nombre o descripción" />
+                        <label>Precio de compra</label>
+                        <input id="articuloCompra" type="number" min="0" step="0.01" placeholder="0" />
+                        <label>Precio de venta</label>
+                        <input id="articuloVenta" type="number" min="0" step="0.01" placeholder="0" />
+                        <div class="actions">
+                            <button class="btn secondary" onclick="limpiarArticulo()">Limpiar</button>
+                            <button class="btn primary" onclick="guardarArticulo()">Guardar artículo</button>
+                        </div>
+                    </div>
+                    <table class="data-table" id="tablaArticulos">
+                        <thead>
+                            <tr><th>Código</th><th>Descripción</th><th>Compra</th><th>Venta</th><th>Acciones</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div>
+                    <div class="toolbar">
+                        <strong>Clientes</strong>
+                        <span class="badge" id="clientesCount">0 registrados</span>
+                    </div>
+                    <div class="mini-form">
+                        <label>Empresa</label>
+                        <input id="clienteEmpresa" type="text" placeholder="Empresa" />
+                        <label>Dirección</label>
+                        <input id="clienteDireccion" type="text" placeholder="Dirección" />
+                        <label>Correo</label>
+                        <input id="clienteCorreo" type="email" placeholder="correo@ejemplo.com" />
+                        <label>Teléfono</label>
+                        <input id="clienteTelefono" type="text" placeholder="Teléfono" />
+                        <label>Sede / Ciudad</label>
+                        <input id="clienteSede" type="text" placeholder="Sede" />
+                        <div class="actions">
+                            <button class="btn secondary" onclick="limpiarCliente()">Limpiar</button>
+                            <button class="btn primary" onclick="guardarCliente()">Guardar cliente</button>
+                        </div>
+                    </div>
+                    <table class="data-table" id="tablaClientes">
+                        <thead>
+                            <tr><th>Empresa</th><th>Correo</th><th>Teléfono</th><th>Sede</th><th>Acciones</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel" style="margin-top:16px;">
+                <div class="toolbar">
+                    <strong>Cotizaciones guardadas</strong>
+                    <input id="buscarCotizacion" type="number" min="1" placeholder="N° a buscar" />
+                    <button class="btn secondary" onclick="buscarCotizacion()">Buscar y cargar</button>
+                    <span class="badge" id="cotizacionesCount">0 almacenadas</span>
+                </div>
+                <table class="data-table" id="tablaCotizaciones">
+                    <thead>
+                        <tr><th>N°</th><th>Cliente</th><th>Fecha</th><th>Moneda</th><th>Total</th><th>Acciones</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="footer">¡Gracias por tu preferencia!</div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script>
         const currencyElement = document.getElementById("currency");
         const tableBody = document.querySelector("#itemsTable tbody");
@@ -414,20 +561,48 @@
         const ivaEl = document.getElementById("iva");
         const totalEl = document.getElementById("total");
 
-        const defaultItems = [
-            { code: "2", desc: "VENTILADOR INDUSTRIAL DE PARED INSTALADO", qty: 2, price: 495000 },
-        ];
+        const storage = {
+            articulos: "inquiserco_articulos",
+            clientes: "inquiserco_clientes",
+            cotizaciones: "inquiserco_cotizaciones",
+            consecutivo: "inquiserco_consecutivo",
+        };
 
-        document.getElementById("issueDate").valueAsDate = new Date();
-        const validityDate = new Date();
-        validityDate.setMonth(validityDate.getMonth() + 2);
-        document.getElementById("validity").valueAsDate = validityDate;
+        const data = {
+            articulos: JSON.parse(localStorage.getItem(storage.articulos) || "[]"),
+            clientes: JSON.parse(localStorage.getItem(storage.clientes) || "[]"),
+            cotizaciones: JSON.parse(localStorage.getItem(storage.cotizaciones) || "[]"),
+            consecutivo: parseInt(localStorage.getItem(storage.consecutivo) || "113", 10),
+        };
+
+        const formatCurrency = (value, currency = currencyElement.value) => new Intl.NumberFormat("es-CO", {
+            style: "currency",
+            currency,
+            minimumFractionDigits: 0,
+        }).format(value);
 
         const formatter = () => new Intl.NumberFormat("es-CO", {
             style: "currency",
             currency: currencyElement.value,
             minimumFractionDigits: 0,
         });
+
+        function initFechas() {
+            document.getElementById("issueDate").valueAsDate = new Date();
+            const validityDate = new Date();
+            validityDate.setMonth(validityDate.getMonth() + 2);
+            document.getElementById("validity").valueAsDate = validityDate;
+        }
+
+        function siguienteConsecutivo() {
+            data.consecutivo += 1;
+            localStorage.setItem(storage.consecutivo, data.consecutivo);
+            document.getElementById("quoteNumber").value = data.consecutivo;
+        }
+
+        function refrescarConsecutivoInicial() {
+            document.getElementById("quoteNumber").value = data.consecutivo;
+        }
 
         function limpiarItem() {
             document.getElementById("itemCode").value = "";
@@ -448,7 +623,7 @@
                 return;
             }
 
-           insertarFila({ code, desc, qty, price });
+            insertarFila({ code, desc, qty, price });
             limpiarItem();
         }
 
@@ -475,23 +650,23 @@
             calcularTotales();
         }
 
-        
         function calcularTotales() {
             let subtotal = 0;
             Array.from(tableBody.querySelectorAll("tr")).forEach(row => {
-                const totalCell = row.cells[4];
-                const rawValue = parseFloat(totalCell.textContent.replace(/[^\d.,-]/g, "").replace(/,/g, ""));
-                subtotal += Number.isNaN(rawValue) ? 0 : rawValue;
+                const qty = parseFloat(row.cells[2].textContent);
+                const price = parseFloat(row.cells[3].textContent.replace(/[^\d.,-]/g, "").replace(/,/g, ""));
+                subtotal += qty * price;
             });
             const iva = subtotal * 0.19;
+            const total = subtotal + iva;
 
             subtotalEl.textContent = formatter().format(subtotal);
             ivaEl.textContent = formatter().format(iva);
             totalEl.textContent = formatter().format(total);
+            return { subtotal, iva, total };
         }
 
         function cambiarMoneda() {
-            // Recalcula solo con el nuevo formateador; los valores ya están en números puros.
             Array.from(tableBody.querySelectorAll("tr")).forEach(row => {
                 const qty = parseFloat(row.cells[2].textContent);
                 const price = parseFloat(row.cells[3].textContent.replace(/[^\d.,-]/g, "").replace(/,/g, ""));
@@ -502,9 +677,292 @@
             calcularTotales();
         }
 
+        function persistir(clave, lista) {
+            localStorage.setItem(clave, JSON.stringify(lista));
+        }
+
+        function renderArticulos() {
+            const tbody = document.querySelector("#tablaArticulos tbody");
+            tbody.innerHTML = "";
+            data.articulos.forEach((articulo, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${articulo.codigo || "-"}</td>
+                    <td>${articulo.nombre}</td>
+                    <td style="text-align:right;">${formatCurrency(articulo.compra)}</td>
+                    <td style="text-align:right;">${formatCurrency(articulo.venta)}</td>
+                    <td style="text-align:center;">
+                        <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="editarArticulo(${index})">Editar</button>
+                        <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="eliminarArticulo(${index})">Borrar</button>
+                        <button class="btn primary" style="padding:6px 10px;font-size:12px;" onclick="usarArticulo(${index})">Usar</button>
+                    </td>`;
+                tbody.appendChild(row);
+            });
+            document.getElementById("articulosCount").textContent = `${data.articulos.length} registrados`;
+        }
+
+        function renderClientes() {
+            const tbody = document.querySelector("#tablaClientes tbody");
+            tbody.innerHTML = "";
+            data.clientes.forEach((cliente, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${cliente.empresa}</td>
+                    <td>${cliente.correo || "-"}</td>
+                    <td>${cliente.telefono || "-"}</td>
+                    <td>${cliente.sede || "-"}</td>
+                    <td style="text-align:center;">
+                        <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="editarCliente(${index})">Editar</button>
+                        <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="eliminarCliente(${index})">Borrar</button>
+                        <button class="btn primary" style="padding:6px 10px;font-size:12px;" onclick="usarCliente(${index})">Usar</button>
+                    </td>`;
+                tbody.appendChild(row);
+            });
+            document.getElementById("clientesCount").textContent = `${data.clientes.length} registrados`;
+        }
+
+        function renderCotizaciones() {
+            const tbody = document.querySelector("#tablaCotizaciones tbody");
+            tbody.innerHTML = "";
+            data.cotizaciones.forEach((cotizacion, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${cotizacion.numero}</td>
+                    <td>${cotizacion.cliente?.empresa || "-"}</td>
+                    <td>${cotizacion.fecha}</td>
+                    <td>${cotizacion.moneda}</td>
+                    <td style="text-align:right;">${formatCurrency(cotizacion.totales.total, cotizacion.moneda)}</td>
+                    <td style="text-align:center;">
+                        <button class="btn primary" style="padding:6px 10px;font-size:12px;" onclick="cargarCotizacionPorIndice(${index})">Cargar</button>
+                        <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="borrarCotizacion(${index})">Borrar</button>
+                    </td>`;
+                tbody.appendChild(row);
+            });
+            document.getElementById("cotizacionesCount").textContent = `${data.cotizaciones.length} almacenadas`;
+        }
+
+        let articuloEditando = null;
+        function guardarArticulo() {
+            const codigo = document.getElementById("articuloCodigo").value.trim();
+            const nombre = document.getElementById("articuloNombre").value.trim();
+            const compra = parseFloat(document.getElementById("articuloCompra").value);
+            const venta = parseFloat(document.getElementById("articuloVenta").value);
+            if (!nombre || Number.isNaN(compra) || Number.isNaN(venta)) {
+                alert("Completa los datos del artículo.");
+                return;
+            }
+
+            const nuevo = { codigo, nombre, compra, venta };
+            if (articuloEditando !== null) {
+                data.articulos[articuloEditando] = nuevo;
+            } else {
+                data.articulos.push(nuevo);
+            }
+            persistir(storage.articulos, data.articulos);
+            renderArticulos();
+            limpiarArticulo();
+        }
+
+        function limpiarArticulo() {
+            articuloEditando = null;
+            document.getElementById("articuloCodigo").value = "";
+            document.getElementById("articuloNombre").value = "";
+            document.getElementById("articuloCompra").value = "";
+            document.getElementById("articuloVenta").value = "";
+        }
+
+        function editarArticulo(index) {
+            articuloEditando = index;
+            const articulo = data.articulos[index];
+            document.getElementById("articuloCodigo").value = articulo.codigo;
+            document.getElementById("articuloNombre").value = articulo.nombre;
+            document.getElementById("articuloCompra").value = articulo.compra;
+            document.getElementById("articuloVenta").value = articulo.venta;
+        }
+
+        function eliminarArticulo(index) {
+            if (!confirm("¿Eliminar este artículo?")) return;
+            data.articulos.splice(index, 1);
+            persistir(storage.articulos, data.articulos);
+            renderArticulos();
+        }
+
+        function usarArticulo(index) {
+            const articulo = data.articulos[index];
+            document.getElementById("itemCode").value = articulo.codigo;
+            document.getElementById("itemDesc").value = articulo.nombre;
+            document.getElementById("itemPrice").value = articulo.venta;
+            document.getElementById("itemQty").focus();
+        }
+
+        let clienteEditando = null;
+        function guardarCliente() {
+            const empresa = document.getElementById("clienteEmpresa").value.trim();
+            const direccion = document.getElementById("clienteDireccion").value.trim();
+            const correo = document.getElementById("clienteCorreo").value.trim();
+            const telefono = document.getElementById("clienteTelefono").value.trim();
+            const sede = document.getElementById("clienteSede").value.trim();
+            if (!empresa) {
+                alert("La empresa es obligatoria.");
+                return;
+            }
+            const nuevo = { empresa, direccion, correo, telefono, sede };
+            if (clienteEditando !== null) {
+                data.clientes[clienteEditando] = nuevo;
+            } else {
+                data.clientes.push(nuevo);
+            }
+            persistir(storage.clientes, data.clientes);
+            renderClientes();
+            limpiarCliente();
+        }
+
+        function limpiarCliente() {
+            clienteEditando = null;
+            document.getElementById("clienteEmpresa").value = "";
+            document.getElementById("clienteDireccion").value = "";
+            document.getElementById("clienteCorreo").value = "";
+            document.getElementById("clienteTelefono").value = "";
+            document.getElementById("clienteSede").value = "";
+        }
+
+        function editarCliente(index) {
+            clienteEditando = index;
+            const cliente = data.clientes[index];
+            document.getElementById("clienteEmpresa").value = cliente.empresa;
+            document.getElementById("clienteDireccion").value = cliente.direccion;
+            document.getElementById("clienteCorreo").value = cliente.correo;
+            document.getElementById("clienteTelefono").value = cliente.telefono;
+            document.getElementById("clienteSede").value = cliente.sede;
+        }
+
+        function eliminarCliente(index) {
+            if (!confirm("¿Eliminar este cliente?")) return;
+            data.clientes.splice(index, 1);
+            persistir(storage.clientes, data.clientes);
+            renderClientes();
+        }
+
+        function usarCliente(index) {
+            const cliente = data.clientes[index];
+            document.getElementById("clientName").value = cliente.empresa;
+            document.getElementById("clientAddress").value = cliente.direccion;
+            document.getElementById("clientEmail").value = cliente.correo;
+            document.getElementById("clientPhone").value = cliente.telefono;
+            document.getElementById("clientCity").value = cliente.sede;
+        }
+
+        function obtenerItems() {
+            return Array.from(tableBody.querySelectorAll("tr")).map(row => ({
+                code: row.cells[0].textContent,
+                desc: row.cells[1].textContent,
+                qty: parseFloat(row.cells[2].textContent),
+                price: parseFloat(row.cells[3].textContent.replace(/[^\d.,-]/g, "").replace(/,/g, "")),
+            }));
+        }
+
+        function guardarCotizacion() {
+            if (tableBody.children.length === 0) {
+                alert("Agrega al menos un ítem a la cotización.");
+                return;
+            }
+            const totales = calcularTotales();
+            const cotizacion = {
+                numero: document.getElementById("quoteNumber").value,
+                fecha: document.getElementById("issueDate").value,
+                validez: document.getElementById("validity").value,
+                moneda: currencyElement.value,
+                cliente: {
+                    empresa: document.getElementById("clientName").value,
+                    cargo: document.getElementById("clientContact").value,
+                    productos: document.getElementById("clientProducts").value,
+                    direccion: document.getElementById("clientAddress").value,
+                    telefono: document.getElementById("clientPhone").value,
+                    correo: document.getElementById("clientEmail").value,
+                    ciudad: document.getElementById("clientCity").value,
+                },
+                items: obtenerItems(),
+                notas: document.getElementById("notes").innerText.trim(),
+                totales: totales,
+            };
+            data.cotizaciones.push(cotizacion);
+            persistir(storage.cotizaciones, data.cotizaciones);
+            renderCotizaciones();
+            siguienteConsecutivo();
+            alert("Cotización guardada.");
+        }
+
+        function cargarCotizacionPorIndice(index) {
+            const cot = data.cotizaciones[index];
+            if (!cot) return;
+            document.getElementById("quoteNumber").value = cot.numero;
+            document.getElementById("issueDate").value = cot.fecha;
+            document.getElementById("validity").value = cot.validez;
+            currencyElement.value = cot.moneda;
+            document.getElementById("clientName").value = cot.cliente.empresa;
+            document.getElementById("clientContact").value = cot.cliente.cargo;
+            document.getElementById("clientProducts").value = cot.cliente.productos;
+            document.getElementById("clientAddress").value = cot.cliente.direccion;
+            document.getElementById("clientPhone").value = cot.cliente.telefono;
+            document.getElementById("clientEmail").value = cot.cliente.correo;
+            document.getElementById("clientCity").value = cot.cliente.ciudad;
+            tableBody.innerHTML = "";
+            cot.items.forEach(insertarFila);
+            calcularTotales();
+        }
+
+        function borrarCotizacion(index) {
+            if (!confirm("¿Eliminar esta cotización guardada?")) return;
+            data.cotizaciones.splice(index, 1);
+            persistir(storage.cotizaciones, data.cotizaciones);
+            renderCotizaciones();
+        }
+
+        function buscarCotizacion() {
+            const numero = document.getElementById("buscarCotizacion").value;
+            const index = data.cotizaciones.findIndex(c => String(c.numero) === String(numero));
+            if (index === -1) {
+                alert("No se encontró la cotización solicitada.");
+                return;
+            }
+            cargarCotizacionPorIndice(index);
+        }
+
+        async function generarPDF() {
+            if (tableBody.children.length === 0) {
+                alert("Agrega al menos un ítem antes de generar PDF.");
+                return;
+            }
+
+            await Promise.resolve(calcularTotales());
+            const { jsPDF } = window.jspdf;
+            const pagina = document.querySelector(".page");
+            const canvas = await html2canvas(pagina, { scale: 2 });
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jsPDF("p", "pt", "letter");
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const imgWidth = pageWidth;
+            const imgHeight = canvas.height * pageWidth / canvas.width;
+            pdf.addImage(imgData, "PNG", 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
+            pdf.save(`cotizacion-${document.getElementById("quoteNumber").value}.pdf`);
+        }
+
         currencyElement.addEventListener("change", cambiarMoneda);
 
-        defaultItems.forEach(insertarFila);
+        function inicializar() {
+            initFechas();
+            refrescarConsecutivoInicial();
+            renderArticulos();
+            renderClientes();
+            renderCotizaciones();
+            if (tableBody.children.length === 0) {
+                insertarFila({ code: "2", desc: "VENTILADOR INDUSTRIAL DE PARED INSTALADO", qty: 2, price: 495000 });
+            }
+            calcularTotales();
+        }
+
+        inicializar();
     </script>
 </body>
 </html>
