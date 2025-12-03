@@ -1,8 +1,8 @@
 (function (global) {
     const CONFIG_KEY = "inquiserco_supabase_config";
     const DEFAULTS = {
-        url: "",
-        key: "",
+        url: "https://uxfehqfkcthsmvpegzfn.supabase.co",
+        key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4ZmVocWZrY3Roc212cGVnemZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3MDYzMTksImV4cCI6MjA4MDI4MjMxOX0.jEC9vCZy7_XElSnQWMx2D2C0R_l1JCvwhwvjkDGcrEs",
         table: "inquiserco_respaldo",
         record: "principal",
     };
