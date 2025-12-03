@@ -57,6 +57,7 @@
         nav a { text-decoration: none; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); color: var(--secondary); font-weight: 700; background: #f8fbff; }
         nav a.active { background: linear-gradient(135deg, var(--secondary), var(--accent)); color: white; border-color: transparent; }
         .backup-card { border: 1px dashed var(--border); padding: 12px 14px; border-radius: 10px; background: #f8fbff; margin: 12px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .supabase-panel { display: none; }
         .backup-card p { margin: 0; color: #2b4c63; font-weight: 600; }
         .supabase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 12px; width: 100%; }
         .supabase-grid label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #4a5568; }
@@ -148,7 +149,7 @@
             </div>
         </div>
 
-        <div class="backup-card hide-on-pdf" style="flex-direction: column; align-items: flex-start;">
+        <div class="backup-card hide-on-pdf supabase-panel" style="flex-direction: column; align-items: flex-start;">
             <p>Sincroniza tus datos en Supabase (guarda/recupera en la nube).</p>
             <p class="badge" style="background:#e6f4ff;color:#0f4f71;">Supabase configurado automáticamente para INQUISERCO.</p>
             <div class="sr-only" aria-hidden="true">
