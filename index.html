@@ -487,6 +487,19 @@
 
         const persistir = (key, value) => localStorage.setItem(key, JSON.stringify(value));
 
+        function calcularSiguienteConsecutivo() {
+            const consecutivoMayorEnCotizaciones = data.cotizaciones.reduce((max, cot) => {
+                const numero = parseInt(cot.numero, 10);
+                return Number.isFinite(numero) ? Math.max(max, numero) : max;
+            }, 0);
+            const siguienteDisponible = consecutivoMayorEnCotizaciones + 1;
+            const nuevoConsecutivo = Math.max(data.consecutivo, siguienteDisponible);
+            if (nuevoConsecutivo !== data.consecutivo) {
+                data.consecutivo = nuevoConsecutivo;
+                localStorage.setItem(storage.consecutivo, data.consecutivo);
+            }
+        }
+
         const construirSnapshot = () => ({
             version: 1,
             generado: new Date().toISOString(),
@@ -515,16 +528,11 @@
             data.articulos = contenido.articulos;
             data.clientes = contenido.clientes;
             data.cotizaciones = contenido.cotizaciones;
-            const consecutivoValido = Number.isFinite(contenido.consecutivo) ? contenido.consecutivo : data.consecutivo;
-            const consecutivoMayorEnCotizaciones = data.cotizaciones.reduce((max, cot) => {
-                const numero = parseInt(cot.numero, 10);
-                return Number.isFinite(numero) ? Math.max(max, numero) : max;
-            }, 0);
-            data.consecutivo = Math.max(data.consecutivo, consecutivoValido, consecutivoMayorEnCotizaciones);
+            data.consecutivo = Number.isFinite(contenido.consecutivo) ? contenido.consecutivo : data.consecutivo;
             persistir(storage.articulos, data.articulos);
             persistir(storage.clientes, data.clientes);
             persistir(storage.cotizaciones, data.cotizaciones);
-            localStorage.setItem(storage.consecutivo, data.consecutivo);
+            calcularSiguienteConsecutivo();
             renderSelectArticulos();
             renderSelectClientes();
             calcularTotales();
@@ -881,7 +889,8 @@
 
         function inicializar() {
             initFechas();
-            refrescarConsecutivoInicial();
+            calcularSiguienteConsecutivo();
+            refrescarConsecutivoInicial();    
             renderSelectArticulos();
             renderSelectClientes();
             calcularTotales();
