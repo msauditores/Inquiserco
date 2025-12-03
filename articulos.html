@@ -64,15 +64,6 @@
             <a href="clientes.html">Clientes</a>
         </nav>
 
-        <div class="backup-card">
-            <p>Guarda un respaldo de artículos, clientes y cotizaciones para restaurarlo luego.</p>
-            <div class="actions">
-                <button class="btn secondary" onclick="exportarDatos()">Exportar respaldo</button>
-                <label class="btn primary" style="cursor:pointer;" for="importBackup">Importar respaldo</label>
-                <input id="importBackup" type="file" accept="application/json" style="display:none" />
-            </div>
-        </div>
-
         <div class="backup-card supabase-panel" style="flex-direction: column; align-items: flex-start;">
             <p>Sincroniza con Supabase para respaldar artículos en la nube.</p>
             <p class="badge" style="background:#e6f4ff;color:#0f4f71;">Supabase configurado automáticamente para INQUISERCO.</p>
@@ -149,17 +140,6 @@
             consecutivo: parseInt(localStorage.getItem(storage.consecutivo) || "113", 10),
         });
 
-        function exportarDatos() {
-            const snapshot = construirSnapshot();
-            const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = `inquiserco-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
-            link.click();
-            URL.revokeObjectURL(url);
-        }
-
         function restaurarDesdeBackup(contenido, { silenciarAlertas = false } = {}) {
             if (!Array.isArray(contenido.articulos) || !Array.isArray(contenido.clientes) || !Array.isArray(contenido.cotizaciones)) {
                 alert("El archivo no tiene el formato esperado.");
@@ -177,22 +157,6 @@
                 alert("Datos importados correctamente.");
             }
         }
-
-        document.getElementById("importBackup").addEventListener("change", event => {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = e => {
-                try {
-                    const contenido = JSON.parse(e.target.result);
-                    restaurarDesdeBackup(contenido);
-                } catch (error) {
-                    alert("No se pudo leer el archivo de respaldo.");
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = "";
-        });
 
         function actualizarEstadoSupabase(mensaje, esError = false) {
             supabaseInputs.status.textContent = mensaje;
