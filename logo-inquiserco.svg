@@ -1,0 +1,7 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Logo de INQUISERCO">
+  <path d="M104 30A70 70 0 0 1 170 96" stroke="#F2A323" stroke-width="28" stroke-linecap="round"/>
+  <path d="M170 104A70 70 0 0 1 104 170" stroke="#1B7F4B" stroke-width="28" stroke-linecap="round"/>
+  <path d="M96 170A70 70 0 0 1 30 104" stroke="#0F57A2" stroke-width="28" stroke-linecap="round"/>
+  <path d="M30 96A70 70 0 0 1 96 30" stroke="#E13A2D" stroke-width="28" stroke-linecap="round"/>
+  <circle cx="100" cy="100" r="18" fill="#ffffff"/>
+</svg>
