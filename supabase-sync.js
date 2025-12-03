@@ -10,6 +10,8 @@
     let cachedClient = null;
     let cachedSignature = "";
 
+    const hasConfig = (config) => Boolean(config?.url && config?.key);
+
     function loadConfig() {
         try {
             const saved = JSON.parse(localStorage.getItem(CONFIG_KEY) || "{}") || {};
@@ -73,6 +75,26 @@
         return data?.[0] ?? snapshot;
     }
 
+    async function pushIfConfigured(payload, config = loadConfig()) {
+        if (!hasConfig(config)) return null;
+        try {
+            return await pushSnapshot(payload, config);
+        } catch (error) {
+            console.error("No se pudo sincronizar automáticamente con Supabase", error);
+            return null;
+        }
+    }
+
+    async function pullIfConfigured(config = loadConfig()) {
+        if (!hasConfig(config)) return null;
+        try {
+            return await pullSnapshot(config);
+        } catch (error) {
+            console.error("No se pudo cargar automáticamente desde Supabase", error);
+            return null;
+        }
+    }
+
     global.SupaSync = {
         loadConfig,
         saveConfig,
@@ -80,6 +102,9 @@
         testConnection,
         pullSnapshot,
         pushSnapshot,
+        hasConfig,
+        pushIfConfigured,
+        pullIfConfigured,
         defaults: { ...DEFAULTS },
     };
 })(window);
