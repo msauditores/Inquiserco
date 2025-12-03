@@ -511,7 +511,7 @@
             URL.revokeObjectURL(url);
         }
 
-        function restaurarDesdeBackup(contenido) {
+        function restaurarDesdeBackup(contenido, { silenciarAlertas = false } = {}) {
             if (!Array.isArray(contenido.articulos) || !Array.isArray(contenido.clientes) || !Array.isArray(contenido.cotizaciones)) {
                 alert("El archivo no tiene el formato esperado.");
                 return;
@@ -529,7 +529,9 @@
             renderSelectClientes();
             calcularTotales();
             refrescarConsecutivoInicial();
-            alert("Datos importados correctamente.");
+            if (!silenciarAlertas) {
+                alert("Datos importados correctamente.");
+            }
         }
 
         document.getElementById("importBackup").addEventListener("change", event => {
@@ -612,6 +614,33 @@
                 console.error(error);
                 actualizarEstadoSupabase(error.message || "Fallo al subir", true);
                 alert("No se pudieron enviar los datos a Supabase.");
+            }
+        }
+
+        async function sincronizarSupabaseAutomaticamente() {
+            const config = SupaSync.loadConfig();
+            if (!SupaSync.hasConfig(config)) return;
+            actualizarEstadoSupabase("Sincronizando automáticamente...");
+            const saved = await SupaSync.pushIfConfigured(construirSnapshot(), config);
+            if (saved) {
+                const fecha = saved.updated_at ? new Date(saved.updated_at).toLocaleString() : "ahora";
+                actualizarEstadoSupabase(`Sincronizado automáticamente (${fecha})`);
+            } else {
+                actualizarEstadoSupabase("No se pudo sincronizar automáticamente", true);
+            }
+        }
+
+        async function cargarDatosDesdeSupabase() {
+            const config = SupaSync.loadConfig();
+            if (!SupaSync.hasConfig(config)) return;
+            actualizarEstadoSupabase("Cargando respaldo en la nube...");
+            const snapshot = await SupaSync.pullIfConfigured(config);
+            if (snapshot?.payload) {
+                restaurarDesdeBackup(snapshot.payload, { silenciarAlertas: true });
+                actualizarEstadoSupabase(`Datos cargados (${snapshot.updated_at ? new Date(snapshot.updated_at).toLocaleString() : "ahora"})`);
+            } else {
+                await SupaSync.pushIfConfigured(construirSnapshot(), config);
+                actualizarEstadoSupabase("Datos locales subidos automáticamente");
             }
         }
 
@@ -709,6 +738,7 @@
             if (!silent) {
                 alert("Cotización guardada.");
             }
+            sincronizarSupabaseAutomaticamente();
             return cotizacion;
         }
 
@@ -827,6 +857,7 @@
             calcularTotales();
             intentarCargarPendiente();
             cargarConfigSupabaseEnUI();
+            cargarDatosDesdeSupabase();
         }
 
         inicializar();
