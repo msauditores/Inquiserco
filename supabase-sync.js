@@ -1,0 +1,85 @@
+(function (global) {
+    const CONFIG_KEY = "inquiserco_supabase_config";
+    const DEFAULTS = {
+        url: "",
+        key: "",
+        table: "inquiserco_respaldo",
+        record: "principal",
+    };
+
+    let cachedClient = null;
+    let cachedSignature = "";
+
+    function loadConfig() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(CONFIG_KEY) || "{}") || {};
+            return { ...DEFAULTS, ...saved };
+        } catch (error) {
+            console.error("No se pudo leer la configuración de Supabase", error);
+            return { ...DEFAULTS };
+        }
+    }
+
+    function saveConfig(config) {
+        const normalized = { ...DEFAULTS, ...config };
+        localStorage.setItem(CONFIG_KEY, JSON.stringify(normalized));
+        cachedClient = null;
+        cachedSignature = "";
+        return normalized;
+    }
+
+    function ensureClient(config = loadConfig()) {
+        if (!global.supabase) {
+            throw new Error("La librería de Supabase no está disponible.");
+        }
+        if (!config.url || !config.key) return null;
+        const signature = `${config.url}|${config.key}`;
+        if (cachedClient && cachedSignature === signature) return cachedClient;
+        cachedClient = global.supabase.createClient(config.url, config.key);
+        cachedSignature = signature;
+        return cachedClient;
+    }
+
+    async function testConnection(config = loadConfig()) {
+        const client = ensureClient(config);
+        if (!client) throw new Error("Configura la URL y la clave anónima de Supabase.");
+        const { error } = await client.from(config.table).select("id").limit(1);
+        if (error) throw error;
+        return true;
+    }
+
+    async function pullSnapshot(config = loadConfig()) {
+        const client = ensureClient(config);
+        if (!client) throw new Error("Configura la URL y la clave anónima de Supabase.");
+        const { data, error } = await client
+            .from(config.table)
+            .select("id,payload,updated_at")
+            .eq("id", config.record)
+            .maybeSingle();
+        if (error) throw error;
+        return data;
+    }
+
+    async function pushSnapshot(payload, config = loadConfig()) {
+        const client = ensureClient(config);
+        if (!client) throw new Error("Configura la URL y la clave anónima de Supabase.");
+        const snapshot = {
+            id: config.record,
+            payload,
+            updated_at: new Date().toISOString(),
+        };
+        const { data, error } = await client.from(config.table).upsert(snapshot).select();
+        if (error) throw error;
+        return data?.[0] ?? snapshot;
+    }
+
+    global.SupaSync = {
+        loadConfig,
+        saveConfig,
+        ensureClient,
+        testConnection,
+        pullSnapshot,
+        pushSnapshot,
+        defaults: { ...DEFAULTS },
+    };
+})(window);
