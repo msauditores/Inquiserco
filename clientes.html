@@ -64,15 +64,6 @@
             <a class="active" href="clientes.html">Clientes</a>
         </nav>
 
-        <div class="backup-card">
-            <p>Respalda tus clientes, artículos y cotizaciones para restaurarlos después.</p>
-            <div class="actions">
-                <button class="btn secondary" onclick="exportarDatos()">Exportar respaldo</button>
-                <label class="btn primary" style="cursor:pointer;" for="importBackup">Importar respaldo</label>
-                <input id="importBackup" type="file" accept="application/json" style="display:none" />
-            </div>
-        </div>
-
         <div class="backup-card supabase-panel" style="flex-direction: column; align-items: flex-start;">
             <p>Sincroniza con Supabase para guardar clientes en la nube.</p>
             <p class="badge" style="background:#e6f4ff;color:#0f4f71;">Supabase configurado automáticamente para INQUISERCO.</p>
@@ -179,21 +170,24 @@
             }
         }
 
-        document.getElementById("importBackup").addEventListener("change", event => {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = e => {
-                try {
-                    const contenido = JSON.parse(e.target.result);
-                    restaurarDesdeBackup(contenido);
-                } catch (error) {
-                    alert("No se pudo leer el archivo de respaldo.");
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = "";
-        });
+        const importBackupInput = document.getElementById("importBackup");
+        if (importBackupInput) {
+            importBackupInput.addEventListener("change", event => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    try {
+                        const contenido = JSON.parse(e.target.result);
+                        restaurarDesdeBackup(contenido);
+                    } catch (error) {
+                        alert("No se pudo leer el archivo de respaldo.");
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = "";
+            });
+        }
 
         function actualizarEstadoSupabase(mensaje, esError = false) {
             supabaseInputs.status.textContent = mensaje;
