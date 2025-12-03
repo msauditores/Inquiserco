@@ -516,7 +516,11 @@
             data.clientes = contenido.clientes;
             data.cotizaciones = contenido.cotizaciones;
             const consecutivoValido = Number.isFinite(contenido.consecutivo) ? contenido.consecutivo : data.consecutivo;
-            data.consecutivo = consecutivoValido;
+            const consecutivoMayorEnCotizaciones = data.cotizaciones.reduce((max, cot) => {
+                const numero = parseInt(cot.numero, 10);
+                return Number.isFinite(numero) ? Math.max(max, numero) : max;
+            }, 0);
+            data.consecutivo = Math.max(data.consecutivo, consecutivoValido, consecutivoMayorEnCotizaciones);
             persistir(storage.articulos, data.articulos);
             persistir(storage.clientes, data.clientes);
             persistir(storage.cotizaciones, data.cotizaciones);
