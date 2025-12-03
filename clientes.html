@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clientes - InquisERCO</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-sync.js"></script>
     <style>
         :root { --primary: #0296c2; --secondary: #0066a1; --accent: #00b4e5; --text: #262626; --muted: #f2f7fb; --border: #d9e5f0; }
         * { box-sizing: border-box; }
@@ -33,6 +35,10 @@
         .badge { padding: 3px 8px; background: var(--muted); border-radius: 999px; border: 1px solid var(--border); font-size: 11px; color: #2b4c63; }
         .backup-card { border: 1px dashed var(--border); padding: 12px 14px; border-radius: 10px; background: #f8fbff; margin: 12px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .backup-card p { margin: 0; color: #2b4c63; font-weight: 600; }
+        .supabase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 12px; width: 100%; }
+        .supabase-grid label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #4a5568; }
+        .supabase-grid input { padding: 8px 10px; border-radius: 7px; border: 1px solid var(--border); font-size: 13px; }
+        .supabase-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
         @media (max-width: 900px) { body { padding: 12px; } .page { padding: 20px; } }
     </style>
 </head>
@@ -62,6 +68,22 @@
                 <button class="btn secondary" onclick="exportarDatos()">Exportar respaldo</button>
                 <label class="btn primary" style="cursor:pointer;" for="importBackup">Importar respaldo</label>
                 <input id="importBackup" type="file" accept="application/json" style="display:none" />
+            </div>
+        </div>
+
+        <div class="backup-card" style="flex-direction: column; align-items: flex-start;">
+            <p>Sincroniza con Supabase para guardar clientes en la nube.</p>
+            <div class="supabase-grid">
+                <label>URL del proyecto<input id="supabaseUrl" type="url" placeholder="https://xxxxx.supabase.co" /></label>
+                <label>Clave anónima<input id="supabaseKey" type="text" placeholder="Ej: eyJhbGciOiJIUzI1NiIs..." /></label>
+                <label>Tabla destino<input id="supabaseTable" type="text" placeholder="inquiserco_respaldo" /></label>
+                <label>ID del registro<input id="supabaseRecord" type="text" placeholder="principal" /></label>
+            </div>
+            <div class="supabase-actions">
+                <button class="btn secondary" onclick="probarSupabase()">Probar conexión</button>
+                <button class="btn secondary" onclick="descargarDesdeSupabase()">Descargar desde Supabase</button>
+                <button class="btn primary" onclick="subirASupabase()">Subir a Supabase</button>
+                <span class="badge" id="supabaseStatus">Supabase sin configurar</span>
             </div>
         </div>
 
@@ -104,19 +126,28 @@
             consecutivo: "inquiserco_consecutivo",
         };
         const data = { clientes: JSON.parse(localStorage.getItem(storage.clientes) || "[]") };
+        const supabaseInputs = {
+            url: document.getElementById("supabaseUrl"),
+            key: document.getElementById("supabaseKey"),
+            table: document.getElementById("supabaseTable"),
+            record: document.getElementById("supabaseRecord"),
+            status: document.getElementById("supabaseStatus"),
+        };
         let clienteEditando = null;
 
         const persistir = (key, value) => localStorage.setItem(key, JSON.stringify(value));
 
+        const construirSnapshot = () => ({
+            version: 1,
+            generado: new Date().toISOString(),
+            articulos: JSON.parse(localStorage.getItem(storage.articulos) || "[]"),
+            clientes: JSON.parse(localStorage.getItem(storage.clientes) || "[]"),
+            cotizaciones: JSON.parse(localStorage.getItem(storage.cotizaciones) || "[]"),
+            consecutivo: parseInt(localStorage.getItem(storage.consecutivo) || "113", 10),
+        });
+
         function exportarDatos() {
-            const snapshot = {
-                version: 1,
-                generado: new Date().toISOString(),
-                articulos: JSON.parse(localStorage.getItem(storage.articulos) || "[]"),
-                clientes: JSON.parse(localStorage.getItem(storage.clientes) || "[]"),
-                cotizaciones: JSON.parse(localStorage.getItem(storage.cotizaciones) || "[]"),
-                consecutivo: parseInt(localStorage.getItem(storage.consecutivo) || "113", 10),
-            };
+            const snapshot = construirSnapshot();
             const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
@@ -158,6 +189,72 @@
             reader.readAsText(file);
             event.target.value = "";
         });
+
+        function actualizarEstadoSupabase(mensaje, esError = false) {
+            supabaseInputs.status.textContent = mensaje;
+            supabaseInputs.status.style.background = esError ? "#ffe8e6" : "#e6f4ff";
+            supabaseInputs.status.style.color = esError ? "#b42318" : "#0f4f71";
+        }
+
+        function cargarConfigSupabaseEnUI() {
+            const config = SupaSync.loadConfig();
+            supabaseInputs.url.value = config.url;
+            supabaseInputs.key.value = config.key;
+            supabaseInputs.table.value = config.table;
+            supabaseInputs.record.value = config.record;
+            actualizarEstadoSupabase(config.url && config.key ? "Config cargada" : "Supabase sin configurar");
+        }
+
+        function obtenerConfigSupabase() {
+            return SupaSync.saveConfig({
+                url: supabaseInputs.url.value.trim(),
+                key: supabaseInputs.key.value.trim(),
+                table: supabaseInputs.table.value.trim() || SupaSync.defaults.table,
+                record: supabaseInputs.record.value.trim() || SupaSync.defaults.record,
+            });
+        }
+
+        async function probarSupabase() {
+            try {
+                const config = obtenerConfigSupabase();
+                await SupaSync.testConnection(config);
+                actualizarEstadoSupabase("Conexión exitosa con Supabase");
+            } catch (error) {
+                console.error(error);
+                actualizarEstadoSupabase(error.message || "No se pudo conectar", true);
+                alert("Revisa la tabla y credenciales de Supabase.");
+            }
+        }
+
+        async function descargarDesdeSupabase() {
+            try {
+                const config = obtenerConfigSupabase();
+                const snapshot = await SupaSync.pullSnapshot(config);
+                if (!snapshot?.payload) {
+                    actualizarEstadoSupabase("No hay datos remotos con ese ID", true);
+                    return;
+                }
+                restaurarDesdeBackup(snapshot.payload);
+                actualizarEstadoSupabase(`Datos descargados (actualizado ${snapshot.updated_at ? new Date(snapshot.updated_at).toLocaleString() : "ahora"})`);
+            } catch (error) {
+                console.error(error);
+                actualizarEstadoSupabase(error.message || "Fallo al descargar", true);
+                alert("No se pudieron recuperar los datos de Supabase.");
+            }
+        }
+
+        async function subirASupabase() {
+            try {
+                const config = obtenerConfigSupabase();
+                const saved = await SupaSync.pushSnapshot(construirSnapshot(), config);
+                actualizarEstadoSupabase(`Datos subidos (${saved?.updated_at ? new Date(saved.updated_at).toLocaleString() : "sin fecha"})`);
+                alert("Sincronizado en Supabase.");
+            } catch (error) {
+                console.error(error);
+                actualizarEstadoSupabase(error.message || "Fallo al subir", true);
+                alert("No se pudieron enviar los datos a Supabase.");
+            }
+        }
 
         function renderClientes() {
             const tbody = document.querySelector("#tablaClientes tbody");
@@ -225,6 +322,7 @@
             renderClientes();
         }
 
+        cargarConfigSupabaseEnUI();
         renderClientes();
     </script>
 </body>
