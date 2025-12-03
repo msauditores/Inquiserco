@@ -311,6 +311,15 @@
             const nombre = document.getElementById("articuloNombre").value.trim();
             const compra = parseFloat(document.getElementById("articuloCompra").value);
             const venta = parseFloat(document.getElementById("articuloVenta").value);
+            if (!codigo) {
+                alert("Ingresa un código para el artículo.");
+                return;
+            }
+            const codigoDuplicado = data.articulos.findIndex((art, idx) => (art.codigo || "").trim().toLowerCase() === codigo.toLowerCase() && idx !== articuloEditando);
+            if (codigoDuplicado >= 0) {
+                alert("El código ya está en uso. Debe ser único.");
+                return;
+            }
             if (!nombre || Number.isNaN(compra) || Number.isNaN(venta)) {
                 alert("Completa los datos del artículo.");
                 return;
