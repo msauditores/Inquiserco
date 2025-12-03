@@ -31,6 +31,7 @@
         .btn.secondary { background: white; color: var(--secondary); border: 1px solid var(--border); }
         .btn:hover { transform: translateY(-1px); }
         .badge { padding: 3px 8px; background: var(--muted); border-radius: 999px; border: 1px solid var(--border); font-size: 11px; color: #2b4c63; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
         .table-actions { display: flex; gap: 8px; justify-content: center; }
         .backup-card { border: 1px dashed var(--border); padding: 12px 14px; border-radius: 10px; background: #f8fbff; margin: 12px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .backup-card p { margin: 0; color: #2b4c63; font-weight: 600; }
@@ -72,11 +73,12 @@
 
         <div class="backup-card" style="flex-direction: column; align-items: flex-start;">
             <p>Sincroniza con Supabase para guardar en la nube.</p>
-            <div class="supabase-grid">
-                <label>URL del proyecto<input id="supabaseUrl" type="url" placeholder="https://xxxxx.supabase.co" /></label>
-                <label>Clave anónima<input id="supabaseKey" type="text" placeholder="Ej: eyJhbGciOiJIUzI1NiIs..." /></label>
-                <label>Tabla destino<input id="supabaseTable" type="text" placeholder="inquiserco_respaldo" /></label>
-                <label>ID del registro<input id="supabaseRecord" type="text" placeholder="principal" /></label>
+            <p class="badge" style="background:#e6f4ff;color:#0f4f71;">Supabase configurado automáticamente para INQUISERCO.</p>
+            <div class="sr-only" aria-hidden="true">
+                <input id="supabaseUrl" type="hidden" value="https://uxfehqfkcthsmvpegzfn.supabase.co" />
+                <input id="supabaseKey" type="hidden" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4ZmVocWZrY3Roc212cGVnemZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3MDYzMTksImV4cCI6MjA4MDI4MjMxOX0.jEC9vCZy7_XElSnQWMx2D2C0R_l1JCvwhwvjkDGcrEs" />
+                <input id="supabaseTable" type="hidden" value="inquiserco_respaldo" />
+                <input id="supabaseRecord" type="hidden" value="principal" />
             </div>
             <div class="supabase-actions">
                 <button class="btn secondary" onclick="probarSupabase()">Probar conexión</button>
