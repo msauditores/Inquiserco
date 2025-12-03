@@ -35,6 +35,7 @@
         .table-actions { display: flex; gap: 8px; justify-content: center; }
         .backup-card { border: 1px dashed var(--border); padding: 12px 14px; border-radius: 10px; background: #f8fbff; margin: 12px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .backup-card p { margin: 0; color: #2b4c63; font-weight: 600; }
+        .supabase-panel { display: none; }
         .supabase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 12px; width: 100%; }
         .supabase-grid label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #4a5568; }
         .supabase-grid input { padding: 8px 10px; border-radius: 7px; border: 1px solid var(--border); font-size: 13px; }
@@ -71,7 +72,7 @@
             </div>
         </div>
 
-        <div class="backup-card" style="flex-direction: column; align-items: flex-start;">
+        <div class="backup-card supabase-panel" style="flex-direction: column; align-items: flex-start;">
             <p>Sincroniza con Supabase para guardar en la nube.</p>
             <p class="badge" style="background:#e6f4ff;color:#0f4f71;">Supabase configurado automáticamente para INQUISERCO.</p>
             <div class="sr-only" aria-hidden="true">
