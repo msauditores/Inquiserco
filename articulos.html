@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Artículos - InquisERCO</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="supabase-sync.js"></script>
     <style>
         :root { --primary: #0296c2; --secondary: #0066a1; --accent: #00b4e5; --text: #262626; --muted: #f2f7fb; --border: #d9e5f0; }
@@ -100,6 +101,11 @@
             <div style="margin-top:12px; display:flex; justify-content: space-between; align-items:center;">
                 <strong>Lista de artículos</strong>
                 <span class="badge" id="articulosCount">0 registrados</span>
+            </div>
+            <div class="actions" style="margin-top:8px;">
+                <input id="archivoImportar" type="file" accept=".xlsx,.xls" style="display:none" onchange="procesarImportacion(event)">
+                <button class="btn secondary" onclick="document.getElementById('archivoImportar').click()">Importar Excel</button>
+                <button class="btn primary" onclick="exportarArticulos()">Exportar Excel</button>
             </div>
             <table id="tablaArticulos">
                 <thead>
@@ -323,6 +329,79 @@
             persistir(storage.articulos, data.articulos);
             renderArticulos();
             sincronizarSupabaseAutomaticamente();
+        }
+
+        function exportarArticulos() {
+            if (!data.articulos.length) {
+                alert("No hay artículos para exportar.");
+                return;
+            }
+            const filas = data.articulos.map(art => ({
+                Codigo: art.codigo || "",
+                Descripcion: art.nombre || "",
+                "Precio compra": art.compra,
+                "Precio venta": art.venta,
+            }));
+            const hoja = XLSX.utils.json_to_sheet(filas, { header: ["Codigo", "Descripcion", "Precio compra", "Precio venta"] });
+            const libro = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(libro, hoja, "Articulos");
+            XLSX.writeFile(libro, "articulos_inquiserco.xlsx");
+        }
+
+        function procesarImportacion(evento) {
+            const archivo = evento.target.files?.[0];
+            if (!archivo) return;
+            const lector = new FileReader();
+            lector.onload = e => {
+                try {
+                    const dataBinaria = new Uint8Array(e.target.result);
+                    const libro = XLSX.read(dataBinaria, { type: "array" });
+                    const hoja = libro.Sheets[libro.SheetNames[0]];
+                    const registros = XLSX.utils.sheet_to_json(hoja, { defval: "" });
+                    if (!Array.isArray(registros) || !registros.length) {
+                        alert("El archivo no tiene datos para importar.");
+                        return;
+                    }
+                    const normalizados = registros.map(reg => ({
+                        codigo: String(reg.Codigo || reg.codigo || "").trim(),
+                        nombre: String(reg.Descripcion || reg.descripcion || "").trim(),
+                        compra: Number(reg["Precio compra"] ?? reg.compra ?? 0),
+                        venta: Number(reg["Precio venta"] ?? reg.venta ?? 0),
+                    })).filter(item => item.codigo);
+                    if (!normalizados.length) {
+                        alert("El archivo no contiene códigos válidos.");
+                        return;
+                    }
+                    const mapaCodigos = new Map();
+                    data.articulos.forEach(art => mapaCodigos.set((art.codigo || "").trim().toLowerCase(), art));
+                    normalizados.forEach(item => {
+                        const clave = item.codigo.toLowerCase();
+                        if (mapaCodigos.has(clave)) {
+                            const existente = mapaCodigos.get(clave);
+                            existente.nombre = item.nombre || existente.nombre;
+                            existente.compra = Number.isFinite(item.compra) ? item.compra : existente.compra;
+                            existente.venta = Number.isFinite(item.venta) ? item.venta : existente.venta;
+                        } else {
+                            data.articulos.push({
+                                codigo: item.codigo,
+                                nombre: item.nombre || "(Sin descripción)",
+                                compra: Number.isFinite(item.compra) ? item.compra : 0,
+                                venta: Number.isFinite(item.venta) ? item.venta : 0,
+                            });
+                        }
+                    });
+                    persistir(storage.articulos, data.articulos);
+                    renderArticulos();
+                    sincronizarSupabaseAutomaticamente();
+                    alert("Importación completada. Se actualizaron/añadieron los artículos.");
+                } catch (error) {
+                    console.error(error);
+                    alert("No se pudo importar el archivo. Verifica que sea un Excel válido.");
+                } finally {
+                    evento.target.value = "";
+                }
+            };
+            lector.readAsArrayBuffer(archivo);
         }
 
         cargarConfigSupabaseEnUI();
