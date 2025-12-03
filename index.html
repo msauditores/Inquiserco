@@ -92,6 +92,11 @@
         .totals { width: 320px; margin-left: auto; margin-top: 12px; }
         .totals tr td:last-child { text-align: right; font-weight: 700; }
         .totals tr:last-child td { font-size: 17px; color: var(--secondary); }
+        .totals .negative { color: #b42318; }
+        .discount-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 12px; }
+        .discount-controls label { font-size: 12px; font-weight: 700; color: #4a5568; display: block; margin-bottom: 4px; }
+        .discount-controls select, .discount-controls input { width: 100%; padding: 8px 10px; border-radius: 7px; border: 1px solid var(--border); font-size: 14px; }
+        .discount-hint { align-self: end; color: #425466; font-size: 12px; background: #f8fbff; border: 1px dashed var(--border); padding: 8px 10px; border-radius: 8px; }
 
         .notes { background: var(--muted); border: 1px dashed var(--border); padding: 10px 12px; border-radius: 8px; font-size: 13px; color: #425466; white-space: pre-line; }
         .signature-block { margin-top: 14px; }
@@ -128,7 +133,7 @@
     <div class="page">
         <div class="top-bar">
             <div class="brand">
-                <img src="logo-inquiserco.svg" alt="Logo de INQUISERCO" class="brand-mark" />
+                <img src="Imagen1.jpg" alt="Logo de INQUISERCO" class="brand-mark" />
                 <div class="brand-name">
                     <h3>INQUISERCO</h3>
                     <small>Ingeniería Química y Servicios</small>
@@ -248,9 +253,25 @@
                 <tbody></tbody>
             </table>
 
+            <div class="discount-controls">
+                <div>
+                    <label for="discountType">Tipo de descuento</label>
+                    <select id="discountType">
+                        <option value="percent">Porcentaje (%)</option>
+                        <option value="value">Valor fijo</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="discountValue">Valor del descuento</label>
+                    <input id="discountValue" type="number" min="0" step="0.01" value="0" />
+                </div>
+                <div class="discount-hint">Aplicado sobre el subtotal.</div>
+            </div>
+
             <table class="totals">
                 <tr><td>Subtotal</td><td id="subtotal">$0</td></tr>
                 <tr><td>IVA (19%)</td><td id="iva">$0</td></tr>
+                <tr><td>Descuento <span class="badge" id="discountLabel">0%</span></td><td id="discountAmount" class="negative">-$0</td></tr>
                 <tr><td>Total</td><td id="total">$0</td></tr>
             </table>
         </div>
@@ -278,7 +299,7 @@
     <div id="pdfTemplate" class="page print-template">
         <div class="top-bar">
             <div class="brand">
-                <img src="logo-inquiserco.svg" alt="Logo de INQUISERCO" class="brand-mark" />
+                <img src="Imagen1.jpg" alt="Logo de INQUISERCO" class="brand-mark" />
                 <div class="brand-name">
                     <h3>INQUISERCO</h3>
                     <small>Ingeniería Química y Servicios</small>
@@ -345,6 +366,7 @@
             <table class="totals">
                 <tr><td>Subtotal</td><td id="pdfSubtotal">$0</td></tr>
                 <tr><td>IVA (19%)</td><td id="pdfIva">$0</td></tr>
+                <tr><td>Descuento <span class="badge" id="pdfDiscountLabel">0%</span></td><td id="pdfDiscount" class="negative">-$0</td></tr>
                 <tr><td>Total</td><td id="pdfTotal">$0</td></tr>
             </table>
         </div>
@@ -369,6 +391,12 @@
         const subtotalEl = document.getElementById("subtotal");
         const ivaEl = document.getElementById("iva");
         const totalEl = document.getElementById("total");
+        const discountTypeEl = document.getElementById("discountType");
+        const discountValueEl = document.getElementById("discountValue");
+        const discountLabelEl = document.getElementById("discountLabel");
+        const discountAmountEl = document.getElementById("discountAmount");
+        const pdfDiscountLabel = document.getElementById("pdfDiscountLabel");
+        const pdfDiscountEl = document.getElementById("pdfDiscount");
         const selectCliente = document.getElementById("selectCliente");
         const selectArticulo = document.getElementById("itemDesc");
         const itemCodeInput = document.getElementById("itemCode");
@@ -409,6 +437,28 @@
             currency: currencyElement.value,
             minimumFractionDigits: 0,
         });
+
+        const formatDiscountLabel = (descuento, currencyOverride = currencyElement.value) => {
+            if (!descuento) return "0%";
+            return descuento.tipo === "percent"
+                ? `${(descuento.valor || 0).toLocaleString("es-CO", { maximumFractionDigits: 2 })}%`
+                : formatCurrency(descuento.valor || 0, currencyOverride);
+        };
+
+        function obtenerConfiguracionDescuento() {
+            const valor = parseFloat(discountValueEl.value);
+            const valorLimpio = Number.isFinite(valor) && valor > 0 ? valor : 0;
+            discountValueEl.value = valorLimpio;
+            return { tipo: discountTypeEl.value, valor: valorLimpio };
+        }
+
+        function calcularMontoDescuento(subtotal, iva, descuento) {
+            if (!descuento) return 0;
+            const baseCalculo = Math.max(subtotal, 0);
+            const monto = descuento.tipo === "percent" ? baseCalculo * (descuento.valor / 100) : descuento.valor;
+            const maximo = baseCalculo + Math.max(iva, 0);
+            return Math.min(Math.max(monto, 0), maximo);
+        }
 
         function initFechas() {
             document.getElementById("issueDate").valueAsDate = new Date();
@@ -483,11 +533,17 @@
             const items = obtenerItems();
             const subtotal = items.reduce((acc, item) => acc + (item.qty * item.price), 0);
             const iva = subtotal * 0.19;
-            const total = subtotal + iva;
+            const descuento = obtenerConfiguracionDescuento();
+            const montoDescuento = calcularMontoDescuento(subtotal, iva, descuento);
+            const totalBruto = subtotal + iva;
+            const total = Math.max(totalBruto - montoDescuento, 0);
+
             subtotalEl.textContent = formatCurrency(subtotal);
             ivaEl.textContent = formatCurrency(iva);
+            discountLabelEl.textContent = formatDiscountLabel(descuento);
+            discountAmountEl.textContent = `-${formatCurrency(montoDescuento)}`;
             totalEl.textContent = formatCurrency(total);
-            return { subtotal, iva, total };
+            return { subtotal, iva, total, descuento: { ...descuento, monto: montoDescuento } };
         }
 
         function cambiarMoneda() {
@@ -749,6 +805,9 @@
             }
         });
 
+        discountTypeEl.addEventListener("change", calcularTotales);
+        discountValueEl.addEventListener("input", calcularTotales);
+
         function actualizarFirmaCliente(nombre) {
             const firma = document.getElementById("signatureName");
             if (firma) {
@@ -785,6 +844,7 @@
                 },
                 items: obtenerItems(),
                 notas: document.getElementById("notes").innerText.trim(),
+                descuento: { tipo: totales.descuento.tipo, valor: totales.descuento.valor },
                 totales: totales,
             };
             const existente = data.cotizaciones.findIndex(c => String(c.numero) === String(cotizacion.numero));
@@ -813,6 +873,9 @@
             document.getElementById("issueDate").value = cot.fecha;
             document.getElementById("validity").value = cot.validez;
             currencyElement.value = cot.moneda;
+            const descuento = cot.descuento || cot.totales?.descuento || { tipo: "percent", valor: 0 };
+            discountTypeEl.value = descuento.tipo || "percent";
+            discountValueEl.value = descuento.valor ?? 0;
             document.getElementById("clientName").value = cot.cliente.empresa;
             document.getElementById("clientAddress").value = cot.cliente.direccion;
             document.getElementById("clientPhone").value = cot.cliente.telefono;
@@ -851,9 +914,18 @@
                 pdfItemsBody.appendChild(row);
             });
 
-            document.getElementById("pdfSubtotal").textContent = formatCurrency(cotizacion.totales.subtotal, cotizacion.moneda);
-            document.getElementById("pdfIva").textContent = formatCurrency(cotizacion.totales.iva, cotizacion.moneda);
-            document.getElementById("pdfTotal").textContent = formatCurrency(cotizacion.totales.total, cotizacion.moneda);
+            const totales = cotizacion.totales || { subtotal: 0, iva: 0, total: 0 };
+            const descuento = totales.descuento || cotizacion.descuento || { tipo: "percent", valor: 0 };
+            const montoDescuento = Number.isFinite(descuento.monto)
+                ? descuento.monto
+                : calcularMontoDescuento(totales.subtotal || 0, totales.iva || 0, descuento);
+            const totalConDescuento = totales.total || Math.max((totales.subtotal || 0) + (totales.iva || 0) - montoDescuento, 0);
+
+            document.getElementById("pdfSubtotal").textContent = formatCurrency(totales.subtotal, cotizacion.moneda);
+            document.getElementById("pdfIva").textContent = formatCurrency(totales.iva, cotizacion.moneda);
+            pdfDiscountLabel.textContent = formatDiscountLabel(descuento, cotizacion.moneda);
+            pdfDiscountEl.textContent = `-${formatCurrency(montoDescuento, cotizacion.moneda)}`;
+            document.getElementById("pdfTotal").textContent = formatCurrency(totalConDescuento, cotizacion.moneda);
         }
 
         async function generarPDF() {
@@ -898,6 +970,8 @@
             document.getElementById("clientEmail").value = "";
             document.getElementById("clientCity").value = "";
             selectCliente.value = "";
+            discountTypeEl.value = "percent";
+            discountValueEl.value = 0;
             tableBody.innerHTML = "";
             limpiarItem();
             calcularTotales();
