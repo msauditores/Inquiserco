@@ -140,15 +140,6 @@
             <a href="clientes.html">Clientes</a>
         </nav>
 
-        <div class="backup-card hide-on-pdf">
-            <p>Respalda o recupera tus datos para usarlos en otros navegadores.</p>
-            <div class="actions">
-                <button class="btn secondary" onclick="exportarDatos()">Exportar respaldo</button>
-                <label class="btn primary" style="cursor:pointer;" for="importBackup">Importar respaldo</label>
-                <input id="importBackup" type="file" accept="application/json" style="display:none" />
-            </div>
-        </div>
-
         <div class="backup-card hide-on-pdf supabase-panel" style="flex-direction: column; align-items: flex-start;">
             <p>Sincroniza tus datos en Supabase (guarda/recupera en la nube).</p>
             <p class="badge" style="background:#e6f4ff;color:#0f4f71;">Supabase configurado automáticamente para INQUISERCO.</p>
@@ -270,7 +261,6 @@
             </div>
         </div>
         <div class="actions hide-on-pdf" style="justify-content: flex-end;">
-            <button class="btn secondary" onclick="guardarCotizacion()">Guardar cotización</button>
             <button class="btn primary" onclick="generarPDF()">Generar PDF</button>
         </div>
 
@@ -369,7 +359,10 @@
         const totalEl = document.getElementById("total");
         const selectCliente = document.getElementById("selectCliente");
         const selectArticulo = document.getElementById("itemDesc");
-
+        const itemCodeInput = document.getElementById("itemCode");
+        const itemQtyInput = document.getElementById("itemQty");
+        const itemPriceInput = document.getElementById("itemPrice");
+        
         const storage = {
             articulos: "inquiserco_articulos",
             clientes: "inquiserco_clientes",
@@ -537,21 +530,24 @@
             }
         }
 
-        document.getElementById("importBackup").addEventListener("change", event => {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = e => {
-                try {
-                    const contenido = JSON.parse(e.target.result);
-                    restaurarDesdeBackup(contenido);
-                } catch (error) {
-                    alert("No se pudo leer el archivo de respaldo.");
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = "";
-        });
+        const importBackupInput = document.getElementById("importBackup");
+        if (importBackupInput) {
+            importBackupInput.addEventListener("change", event => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    try {
+                        const contenido = JSON.parse(e.target.result);
+                        restaurarDesdeBackup(contenido);
+                    } catch (error) {
+                        alert("No se pudo leer el archivo de respaldo.");
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = "";
+            });
+        }
 
         function actualizarEstadoSupabase(mensaje, esError = false) {
             supabaseInputs.status.textContent = mensaje;
@@ -676,6 +672,28 @@
             });
         }
 
+        function cargarArticuloEnFormulario(articulo, index) {
+            if (!articulo) return;
+            if (typeof index === "number") {
+                selectArticulo.value = index;
+            }
+            itemCodeInput.value = articulo.codigo || "";
+            itemPriceInput.value = articulo.venta || 0;
+            itemQtyInput.focus();
+        }
+
+        function buscarArticuloPorCodigo() {
+            const codigo = itemCodeInput.value.trim().toLowerCase();
+            if (!codigo) {
+                selectArticulo.value = "";
+                return;
+            }
+            const index = data.articulos.findIndex(art => (art.codigo || "").trim().toLowerCase() === codigo);
+            if (index >= 0) {
+                cargarArticuloEnFormulario(data.articulos[index], index);
+            }
+        }
+
         selectCliente.addEventListener("change", () => {
             const index = parseInt(selectCliente.value, 10);
             if (Number.isNaN(index)) return;
@@ -692,9 +710,14 @@
             const index = parseInt(selectArticulo.value, 10);
             if (Number.isNaN(index)) return;
             const articulo = data.articulos[index];
-            document.getElementById("itemCode").value = articulo.codigo || "";
-            document.getElementById("itemPrice").value = articulo.venta || 0;
-            document.getElementById("itemQty").focus();
+            cargarArticuloEnFormulario(articulo, index);
+        });
+
+        itemCodeInput.addEventListener("change", buscarArticuloPorCodigo);
+        itemCodeInput.addEventListener("keyup", event => {
+            if (event.key === "Enter") {
+                buscarArticuloPorCodigo();
+            }
         });
 
         function obtenerItems() {
