@@ -941,18 +941,27 @@
             const { jsPDF } = window.jspdf;
             const canvas = await html2canvas(plantilla, { scale: 2, backgroundColor: "#ffffff" });
             const imgData = canvas.toDataURL("image/png");
-            const pageWidth = 612; // carta 8.5in en pt
-            const pageHeight = 792; // carta 11in en pt
+            const pdf = new jsPDF("p", "pt", "letter");
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
             const margin = 12;
             const usableWidth = pageWidth - (margin * 2);
             const usableHeight = pageHeight - (margin * 2);
-            const scale = Math.min(usableWidth / canvas.width, usableHeight / canvas.height);
-            const imgWidth = canvas.width * scale;
-            const imgHeight = canvas.height * scale;
-            const offsetX = margin + ((usableWidth - imgWidth) / 2);
-            const offsetY = margin; // mantener el contenido alineado hacia arriba
-            const pdf = new jsPDF("p", "pt", "letter");
-            pdf.addImage(imgData, "PNG", offsetX, offsetY, imgWidth, imgHeight);
+            const imgWidth = usableWidth; // mantener el ancho completo de carta
+            const imgHeight = canvas.height * (imgWidth / canvas.width);
+            let heightLeft = imgHeight;
+            let position = margin;
+
+            pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+            heightLeft -= usableHeight;
+
+            while (heightLeft > 0) {
+                position = margin - (imgHeight - heightLeft);
+                pdf.addPage("letter");
+                pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+                heightLeft -= usableHeight;
+            }
+
             pdf.save(`cotizacion-${document.getElementById("quoteNumber").value}.pdf`);
             plantilla.classList.remove("active-print");
             siguienteConsecutivo();
