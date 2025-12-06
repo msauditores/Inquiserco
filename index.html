@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -944,10 +943,8 @@
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
             const margin = 32;
-            const headerHeight = 48;
-            const footerHeight = 24;
             const usableWidth = pageWidth - (margin * 2);
-            const usableHeight = pageHeight - (margin * 2) - headerHeight - footerHeight;
+            const usableHeight = pageHeight - (margin * 2);
             const imgWidth = usableWidth; // mantener el ancho completo de carta
 
             const crearSlice = (offset, height) => {
@@ -972,17 +969,10 @@
 
             const totalPages = Math.max(1, slices.length);
 
-            const dibujarEncabezadoPie = (page) => {
-                pdf.setFontSize(11);
-                pdf.setTextColor(0, 102, 161);
-                pdf.text("INQUISERCO · Cotización", margin, margin + 12);
-                pdf.setDrawColor(0, 102, 161);
-                pdf.setLineWidth(0.6);
-                pdf.line(margin, margin + 16, pageWidth - margin, margin + 16);
-
+            const dibujarPie = (page) => {
                 pdf.setFontSize(9);
                 pdf.setTextColor(70, 80, 95);
-                pdf.text(`Página ${page} de ${totalPages}`, pageWidth - margin, pageHeight - margin - 6, { align: "right" });
+                pdf.text(`Página ${page} de ${totalPages}`, pageWidth - margin, pageHeight - margin, { align: "right" });
             };
 
             slices.forEach((slice, index) => {
@@ -991,9 +981,8 @@
                 }
 
                 const imgHeight = slice.sliceHeight * (imgWidth / canvas.width);
-                const position = margin + headerHeight;
-                pdf.addImage(slice.dataUrl, "PNG", margin, position, imgWidth, imgHeight);
-                dibujarEncabezadoPie(index + 1);
+                pdf.addImage(slice.dataUrl, "PNG", margin, margin, imgWidth, imgHeight);
+                dibujarPie(index + 1);
             });
 
             pdf.save(`cotizacion-${document.getElementById("quoteNumber").value}.pdf`);
