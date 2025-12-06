@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cotizaciones - Inquiserco</title>
+    <title>Cotizaciones - InquisERCO</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-sync.js"></script>
     <style>
@@ -122,13 +122,23 @@
             minimumFractionDigits: 0,
         }).format(value);
 
+        function calcularSiguienteConsecutivo() {
+            const consecutivoMayorEnCotizaciones = data.cotizaciones.reduce((max, cot) => {
+                const numero = parseInt(cot.numero, 10);
+                return Number.isFinite(numero) ? Math.max(max, numero) : max;
+            }, 0);
+            const siguienteDisponible = Math.max(1, consecutivoMayorEnCotizaciones + 1);
+            localStorage.setItem(storage.consecutivo, siguienteDisponible);
+            return siguienteDisponible;
+        }
+
         const construirSnapshot = () => ({
             version: 1,
             generado: new Date().toISOString(),
             articulos: JSON.parse(localStorage.getItem(storage.articulos) || "[]"),
             clientes: JSON.parse(localStorage.getItem(storage.clientes) || "[]"),
             cotizaciones: data.cotizaciones,
-            consecutivo: parseInt(localStorage.getItem(storage.consecutivo) || "113", 10),
+            consecutivo: calcularSiguienteConsecutivo(),
         });
     
         function exportarDatos() {
@@ -152,8 +162,10 @@
             if (contenido.articulos) localStorage.setItem(storage.articulos, JSON.stringify(contenido.articulos));
             if (contenido.clientes) localStorage.setItem(storage.clientes, JSON.stringify(contenido.clientes));
             if (Number.isFinite(contenido.consecutivo)) {
-                localStorage.setItem(storage.consecutivo, contenido.consecutivo);
+                const consecutivoRestaurado = Math.max(1, contenido.consecutivo);
+                localStorage.setItem(storage.consecutivo, consecutivoRestaurado);
             }
+            calcularSiguienteConsecutivo();
             renderCotizaciones();
             if (!silenciarAlertas) {
                 alert("Datos importados correctamente.");
@@ -281,6 +293,7 @@
             if (!confirm("¿Eliminar esta cotización guardada?")) return;
             data.cotizaciones.splice(index, 1);
             localStorage.setItem(storage.cotizaciones, JSON.stringify(data.cotizaciones));
+            calcularSiguienteConsecutivo();
             renderCotizaciones();
             sincronizarSupabaseAutomaticamente();
         }
@@ -318,6 +331,7 @@
         }
 
         cargarConfigSupabaseEnUI();
+        calcularSiguienteConsecutivo();
         renderCotizaciones();
         cargarDatosDesdeSupabase();
     </script>
