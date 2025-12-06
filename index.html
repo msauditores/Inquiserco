@@ -944,22 +944,38 @@
             const pdf = new jsPDF("p", "pt", "letter");
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
-            const margin = 12;
+            const margin = 24;
+            const headerHeight = 32;
+            const footerHeight = 20;
             const usableWidth = pageWidth - (margin * 2);
-            const usableHeight = pageHeight - (margin * 2);
+            const usableHeight = pageHeight - (margin * 2) - headerHeight - footerHeight;
             const imgWidth = usableWidth; // mantener el ancho completo de carta
             const imgHeight = canvas.height * (imgWidth / canvas.width);
+            const totalPages = Math.max(1, Math.ceil(imgHeight / usableHeight));
             let heightLeft = imgHeight;
-            let position = margin;
+            let position = margin + headerHeight;
 
             pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
             heightLeft -= usableHeight;
 
             while (heightLeft > 0) {
-                position = margin - (imgHeight - heightLeft);
+                position = margin + headerHeight - (imgHeight - heightLeft);
                 pdf.addPage("letter");
                 pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
                 heightLeft -= usableHeight;
+            }
+
+            for (let page = 1; page <= totalPages; page += 1) {
+                pdf.setPage(page);
+                pdf.setFontSize(11);
+                pdf.setTextColor(0, 102, 161);
+                pdf.text("INQUISERCO · Cotización", margin, margin + 12);
+                pdf.setDrawColor(0, 102, 161);
+                pdf.setLineWidth(0.6);
+                pdf.line(margin, margin + 16, pageWidth - margin, margin + 16);
+                pdf.setFontSize(9);
+                pdf.setTextColor(70, 80, 95);
+                pdf.text(`Página ${page} de ${totalPages}`, pageWidth - margin, pageHeight - margin - 6, { align: "right" });
             }
 
             pdf.save(`cotizacion-${document.getElementById("quoteNumber").value}.pdf`);
