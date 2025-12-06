@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -558,10 +559,9 @@
                 const numero = parseInt(cot.numero, 10);
                 return Number.isFinite(numero) ? Math.max(max, numero) : max;
             }, 0);
-            const siguienteDisponible = consecutivoMayorEnCotizaciones + 1;
-            const nuevoConsecutivo = Math.max(data.consecutivo, siguienteDisponible);
-            if (nuevoConsecutivo !== data.consecutivo) {
-                data.consecutivo = nuevoConsecutivo;
+            const siguienteDisponible = Math.max(1, consecutivoMayorEnCotizaciones + 1);
+            if (siguienteDisponible !== data.consecutivo) {
+                data.consecutivo = siguienteDisponible;
                 localStorage.setItem(storage.consecutivo, data.consecutivo);
             }
         }
@@ -940,45 +940,61 @@
             plantilla.classList.add("active-print");
             const { jsPDF } = window.jspdf;
             const canvas = await html2canvas(plantilla, { scale: 2, backgroundColor: "#ffffff" });
-            const imgData = canvas.toDataURL("image/png");
             const pdf = new jsPDF("p", "pt", "letter");
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
-            const margin = 24;
-            const headerHeight = 32;
-            const footerHeight = 20;
+            const margin = 32;
+            const headerHeight = 48;
+            const footerHeight = 24;
             const usableWidth = pageWidth - (margin * 2);
             const usableHeight = pageHeight - (margin * 2) - headerHeight - footerHeight;
             const imgWidth = usableWidth; // mantener el ancho completo de carta
-            const imgHeight = canvas.height * (imgWidth / canvas.width);
-            const totalPages = Math.max(1, Math.ceil(imgHeight / usableHeight));
-            let heightLeft = imgHeight;
-            let position = margin + headerHeight;
 
-            pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-            heightLeft -= usableHeight;
+            const crearSlice = (offset, height) => {
+                const pageCanvas = document.createElement("canvas");
+                pageCanvas.width = canvas.width;
+                pageCanvas.height = height;
+                const context = pageCanvas.getContext("2d");
+                context.fillStyle = "#ffffff";
+                context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+                context.drawImage(canvas, 0, offset, canvas.width, height, 0, 0, pageCanvas.width, pageCanvas.height);
+                return pageCanvas.toDataURL("image/png");
+            };
 
-            while (heightLeft > 0) {
-                position = margin + headerHeight - (imgHeight - heightLeft);
-                pdf.addPage("letter");
-                pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-                heightLeft -= usableHeight;
+            const slices = [];
+            for (let offset = 0; offset < canvas.height; offset += usableHeight) {
+                const sliceHeight = Math.min(usableHeight, canvas.height - offset);
+                slices.push({
+                    dataUrl: crearSlice(offset, sliceHeight),
+                    sliceHeight,
+                });
             }
 
-            for (let page = 1; page <= totalPages; page += 1) {
-                pdf.setPage(page);
-                if (page === 1) {
-                    pdf.setFontSize(11);
-                    pdf.setTextColor(0, 102, 161);
-                    pdf.text("INQUISERCO · Cotización", margin, margin + 12);
-                    pdf.setDrawColor(0, 102, 161);
-                    pdf.setLineWidth(0.6);
-                    pdf.line(margin, margin + 16, pageWidth - margin, margin + 16);
-                }
+            const totalPages = Math.max(1, slices.length);
+
+            const dibujarEncabezadoPie = (page) => {
+                pdf.setFontSize(11);
+                pdf.setTextColor(0, 102, 161);
+                pdf.text("INQUISERCO · Cotización", margin, margin + 12);
+                pdf.setDrawColor(0, 102, 161);
+                pdf.setLineWidth(0.6);
+                pdf.line(margin, margin + 16, pageWidth - margin, margin + 16);
+
                 pdf.setFontSize(9);
                 pdf.setTextColor(70, 80, 95);
                 pdf.text(`Página ${page} de ${totalPages}`, pageWidth - margin, pageHeight - margin - 6, { align: "right" });
-            }
+            };
+
+            slices.forEach((slice, index) => {
+                if (index > 0) {
+                    pdf.addPage("letter");
+                }
+
+                const imgHeight = slice.sliceHeight * (imgWidth / canvas.width);
+                const position = margin + headerHeight;
+                pdf.addImage(slice.dataUrl, "PNG", margin, position, imgWidth, imgHeight);
+                dibujarEncabezadoPie(index + 1);
+            });
 
             pdf.save(`cotizacion-${document.getElementById("quoteNumber").value}.pdf`);
             plantilla.classList.remove("active-print");
