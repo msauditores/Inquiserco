@@ -946,6 +946,7 @@
             const usableWidth = pageWidth - (margin * 2);
             const usableHeight = pageHeight - (margin * 2);
             const imgWidth = usableWidth; // mantener el ancho completo de carta
+            const scaleFactor = imgWidth / canvas.width; // puntos por píxel para calcular alturas correctas
 
             const crearSlice = (offset, height) => {
                 const pageCanvas = document.createElement("canvas");
@@ -958,8 +959,10 @@
                 return pageCanvas.toDataURL("image/png");
             };
 
-            const slices = [];
-            for (let offset = 0; offset < canvas.height; offset += usableHeight) {
+            const sliceHeightPx = usableHeight / scaleFactor;
+
+            for (let offset = 0; offset < canvas.height; offset += sliceHeightPx) {
+                const sliceHeight = Math.min(sliceHeightPx, canvas.height - offset);
                 const sliceHeight = Math.min(usableHeight, canvas.height - offset);
                 slices.push({
                     dataUrl: crearSlice(offset, sliceHeight),
