@@ -967,12 +967,14 @@
 
             for (let page = 1; page <= totalPages; page += 1) {
                 pdf.setPage(page);
-                pdf.setFontSize(11);
-                pdf.setTextColor(0, 102, 161);
-                pdf.text("INQUISERCO · Cotización", margin, margin + 12);
-                pdf.setDrawColor(0, 102, 161);
-                pdf.setLineWidth(0.6);
-                pdf.line(margin, margin + 16, pageWidth - margin, margin + 16);
+                if (page === 1) {
+                    pdf.setFontSize(11);
+                    pdf.setTextColor(0, 102, 161);
+                    pdf.text("INQUISERCO · Cotización", margin, margin + 12);
+                    pdf.setDrawColor(0, 102, 161);
+                    pdf.setLineWidth(0.6);
+                    pdf.line(margin, margin + 16, pageWidth - margin, margin + 16);
+                }
                 pdf.setFontSize(9);
                 pdf.setTextColor(70, 80, 95);
                 pdf.text(`Página ${page} de ${totalPages}`, pageWidth - margin, pageHeight - margin - 6, { align: "right" });
