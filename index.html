@@ -1026,6 +1026,7 @@
             const snapshot = await SupaSync.pullIfConfigured(config);
             if (snapshot?.payload) {
                 restaurarDesdeBackup(snapshot.payload, { silenciarAlertas: true });
+                intentarCargarPendiente();
                 actualizarEstadoSupabase(`Datos cargados (${snapshot.updated_at ? new Date(snapshot.updated_at).toLocaleString() : "ahora"})`);
             } else {
                 await SupaSync.pushIfConfigured(construirSnapshot(), config);
@@ -1036,12 +1037,16 @@
 
         function intentarCargarPendiente() {
             const pendiente = localStorage.getItem(storage.cotizacionPendiente);
-            if (!pendiente) return;
+            if (!pendiente) return false;
+
             const index = data.cotizaciones.findIndex(c => String(c.numero) === String(pendiente));
             if (index >= 0) {
-                cargarCotizacionPorIndice(index); 
+                cargarCotizacionPorIndice(index);
+                localStorage.removeItem(storage.cotizacionPendiente);
+                return true;
             }
-            localStorage.removeItem(storage.cotizacionPendiente);
+
+            return false;
         }
 
         function inicializar() {
