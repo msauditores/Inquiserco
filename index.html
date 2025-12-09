@@ -656,8 +656,12 @@
             const selectClienteEl = document.getElementById("selectCliente");
             const clienteEmpresa = selectClienteEl.options[selectClienteEl.selectedIndex]?.text || "";
 
+            const numeroFormulario = document.getElementById("quoteNumber").value;
+            const numeroCotizacion = cotizacionCargadaNumero ?? numeroFormulario;
+            document.getElementById("quoteNumber").value = numeroCotizacion;
+
             const cotizacion = {
-                numero: document.getElementById("quoteNumber").value,
+                numero: numeroCotizacion,
                 fecha: document.getElementById("issueDate").value,
                 validez: document.getElementById("validity").value,
                 moneda: document.getElementById("currency").value,
@@ -710,7 +714,9 @@
             }
 
             await generarPDF();
-            limpiarFormulario();
+            if (!cotizacionCargadaNumero) {
+                limpiarFormulario();
+            }
         }
 
         /* -------------------------------------------------------------
