@@ -345,16 +345,18 @@
         let cotizacionCargadaNumero = null;
 
         // --- Utilidades de Formato ---
-        const formatCurrency = (value, currency = currencyElement.value) => new Intl.NumberFormat("es-CO", { 
-            style: "currency", 
-            currency, 
+        const formatCurrency = (value, currency = currencyElement.value) => new Intl.NumberFormat("es-CO", {
+            style: "currency",
+            currency,
             minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(value);
 
-        const formatter = () => new Intl.NumberFormat("es-CO", { 
-            style: "currency", 
-            currency: currencyElement.value, 
+        const formatter = () => new Intl.NumberFormat("es-CO", {
+            style: "currency",
+            currency: currencyElement.value,
             minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         });
 
         const formatDiscountLabel = (descuento, currencyOverride = currencyElement.value) => {
