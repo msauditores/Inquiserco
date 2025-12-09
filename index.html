@@ -628,7 +628,13 @@
             document.getElementById("clientEmail").value = cotizacion.cliente?.correo || "";
             document.getElementById("clientCity").value = cotizacion.cliente?.ciudad || "";
             actualizarFirmaCliente(cotizacion.cliente?.nombre || cotizacion.cliente?.empresa);
-            
+
+            const clienteBuscado = (cotizacion.cliente?.empresa || cotizacion.cliente?.nombre || "").toLowerCase();
+            const idxCliente = data.clientes.findIndex(cli =>
+                (cli.empresa || cli.nombre || "").toLowerCase() === clienteBuscado
+            );
+            selectCliente.value = idxCliente >= 0 ? String(idxCliente) : "";
+
             // 3. Cargar descuento y notas
             document.getElementById("discountType").value = cotizacion.descuento?.tipo || "percent";
             document.getElementById("discountValue").value = cotizacion.descuento?.valor || 0;
@@ -654,7 +660,8 @@
             const totales = calcularTotales();
             const descuento = obtenerConfiguracionDescuento();
             const selectClienteEl = document.getElementById("selectCliente");
-            const clienteEmpresa = selectClienteEl.options[selectClienteEl.selectedIndex]?.text || "";
+            const clienteEmpresa = selectClienteEl.options[selectClienteEl.selectedIndex]?.text ||
+                document.getElementById("clientName").value || "";
 
             const numeroFormulario = document.getElementById("quoteNumber").value;
             const numeroCotizacion = cotizacionCargadaNumero ?? numeroFormulario;
