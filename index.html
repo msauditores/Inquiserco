@@ -676,15 +676,22 @@
             };
 
             const indexExistente = data.cotizaciones.findIndex(c => String(c.numero) === cotizacion.numero);
+            const esNueva = indexExistente === -1;
 
-            if (indexExistente !== -1) {
-                data.cotizaciones[indexExistente] = cotizacion;
-            } else {
+            if (esNueva) {
                 data.cotizaciones.push(cotizacion);
+            } else {
+                data.cotizaciones[indexExistente] = cotizacion;
             }
 
             persistir(storage.cotizaciones, data.cotizaciones);
-            siguienteConsecutivo();
+
+            // Solo avanzar el consecutivo cuando se crea una cotización nueva
+            if (esNueva) {
+                siguienteConsecutivo();
+            }
+
+            cotizacionCargadaNumero = cotizacion.numero;
             // Sincronizar Supabase
             if (typeof sincronizarSupabaseAutomaticamente === 'function') {
                 sincronizarSupabaseAutomaticamente();
