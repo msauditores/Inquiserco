@@ -574,6 +574,26 @@
             });
             document.getElementById("clientesCount").textContent = `${data.clientes.length} registrados`;
         }
+
+        function asegurarClienteEnLista(cliente) {
+            const nombreClave = (cliente.empresa || cliente.nombre || "").toLowerCase();
+            if (!nombreClave) return;
+
+            const existe = data.clientes.some(cli => (cli.empresa || cli.nombre || "").toLowerCase() === nombreClave);
+            if (existe) return;
+
+            data.clientes.push({
+                empresa: cliente.empresa || cliente.nombre || "",
+                nombre: cliente.nombre || "",
+                direccion: cliente.direccion || "",
+                telefono: cliente.telefono || "",
+                correo: cliente.correo || "",
+                sede: cliente.ciudad || "",
+            });
+
+            persistir(storage.clientes, data.clientes);
+            renderSelectClientes();
+        }
         
         // Listeners (sin cambios)
         selectCliente.addEventListener("change", () => {
@@ -613,7 +633,10 @@
             const cotizacion = data.cotizaciones[index];
             if (!cotizacion) return;
 
-           cotizacionCargadaNumero = cotizacion.numero;
+            asegurarClienteEnLista(cotizacion.cliente || {});
+            renderSelectClientes();
+
+            cotizacionCargadaNumero = cotizacion.numero;
 
             // 1. Cargar metadatos
             document.getElementById("quoteNumber").value = cotizacion.numero || "";
@@ -660,8 +683,16 @@
             const totales = calcularTotales();
             const descuento = obtenerConfiguracionDescuento();
             const selectClienteEl = document.getElementById("selectCliente");
-            const clie    nteEmpresa = selectClienteEl.options[selectClienteEl.selectedIndex]?.text ||
-                document.getElementById("clientName").value || "";
+            const indiceClienteSeleccionado = selectClienteEl.value;
+            const clienteSeleccionado = indiceClienteSeleccionado !== "" ? data.clientes[indiceClienteSeleccionado] : null;
+            const clienteEmpresaDesdeSelect =
+                indiceClienteSeleccionado !== ""
+                    ? selectClienteEl.options[selectClienteEl.selectedIndex]?.text
+                    : "";
+            const clienteEmpresa =
+                (clienteEmpresaDesdeSelect && clienteEmpresaDesdeSelect !== "-- Seleccionar --")
+                    ? clienteEmpresaDesdeSelect
+                    : document.getElementById("clientName").value || "";
 
             const numeroFormulario = document.getElementById("quoteNumber").value;
             const numeroCotizacion = cotizacionCargadaNumero ?? numeroFormulario;
@@ -674,17 +705,19 @@
                 moneda: document.getElementById("currency").value,
                 cliente: {
                     empresa: clienteEmpresa,
-                    nombre: document.getElementById("clientName").value,
-                    direccion: document.getElementById("clientAddress").value,
-                    telefono: document.getElementById("clientPhone").value,
-                    correo: document.getElementById("clientEmail").value,
-                    ciudad: document.getElementById("clientCity").value,
+                    nombre: document.getElementById("clientName").value || clienteSeleccionado?.nombre || "",
+                    direccion: document.getElementById("clientAddress").value || clienteSeleccionado?.direccion || "",
+                    telefono: document.getElementById("clientPhone").value || clienteSeleccionado?.telefono || "",
+                    correo: document.getElementById("clientEmail").value || clienteSeleccionado?.correo || "",
+                    ciudad: document.getElementById("clientCity").value || clienteSeleccionado?.sede || "",
                 },
                 items: items,
                 descuento: descuento,
                 notas: document.getElementById("notes").textContent,
                 totales: totales,
             };
+
+            asegurarClienteEnLista(cotizacion.cliente);
 
             const indexExistente = data.cotizaciones.findIndex(c => String(c.numero) === cotizacion.numero);
             const esNueva = indexExistente === -1;
@@ -940,6 +973,7 @@
             document.getElementById("clientCity").value = "";
             document.getElementById("notes").textContent = "";
             initFechas();
+            calcularSiguienteConsecutivo();
             refrescarConsecutivoInicial();
             selectCliente.value = "";
             discountTypeEl.value = "percent";
