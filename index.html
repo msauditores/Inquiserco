@@ -342,6 +342,7 @@
             cotizaciones: JSON.parse(localStorage.getItem(storage.cotizaciones) || "[]"),
             consecutivo: parseInt(localStorage.getItem(storage.consecutivo) || "113", 10),
         };
+        let cotizacionCargadaNumero = null;
 
         // --- Utilidades de Formato ---
         const formatCurrency = (value, currency = currencyElement.value) => new Intl.NumberFormat("es-CO", { 
@@ -581,6 +582,8 @@
             const cotizacion = data.cotizaciones[index];
             if (!cotizacion) return;
 
+           cotizacionCargadaNumero = cotizacion.numero;
+
             // 1. Cargar metadatos
             document.getElementById("quoteNumber").value = cotizacion.numero || "";
             document.getElementById("issueDate").value = cotizacion.fecha || "";
@@ -608,7 +611,6 @@
 
             // 5. Recalcular para actualizar los campos de totales visibles
             calcularTotales();
-            alert(`Cotización N° ${cotizacion.numero} cargada exitosamente.`);
         }
 
         function guardarCotizacion() {
@@ -660,10 +662,17 @@
         
         // 🟢 NUEVA FUNCIÓN: Guarda y luego genera el PDF
         async function generarPDFConGuardado() {
-            // 1. Guarda la cotización automáticamente
-            guardarCotizacion(); 
-            // 2. Genera el PDF
+            const numeroActual = String(document.getElementById("quoteNumber").value || "");
+            const cotizacionYaGuardada =
+                cotizacionCargadaNumero && String(cotizacionCargadaNumero) === numeroActual &&
+                data.cotizaciones.some(c => String(c.numero) === numeroActual);
+
+            if (!cotizacionYaGuardada) {
+                guardarCotizacion();
+            }
+
             await generarPDF();
+            limpiarFormulario();
         }
 
         /* -------------------------------------------------------------
@@ -802,19 +811,12 @@
                 }
             });
 
-            // Pasa por todas las páginas para añadir el encabezado y pie de página completo
-            // Debe hacerse ANTES de dibujar totales y notas, ya que éstos podrían añadir una nueva página.
-            let totalPages = doc.internal.pages.length;
-            for (let i = 1; i <= totalPages; i++) {
-                doc.setPage(i);
-                addHeaderAndFooter(doc, { pageNumber: i }, totalPages);
-            }
-
             // --- TOTALES, NOTAS Y FIRMA (ÚLTIMA PÁGINA) ---
+            let totalPages = doc.internal.getNumberOfPages();
             doc.setPage(totalPages);
             let finalY = doc.lastAutoTable.finalY + 5;
             const pageHeight = doc.internal.pageSize.height;
-            const totalBlockWidth = 50; 
+            const totalBlockWidth = 50;
             const totalBlockX = pageWidth - 14 - totalBlockWidth; 
 
             // Verificar si Totales y Notas caben
@@ -868,6 +870,12 @@
             doc.setFont("helvetica", "bold");
             doc.text(clienteNombre || "Cliente", 14, firmaY + 10);
 
+            totalPages = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                doc.setPage(i);
+                addHeaderAndFooter(doc, { pageNumber: i }, totalPages);
+            }
+
             doc.save(`Cotizacion_${nCotizacion}_INQUISERCO.pdf`);
         }
 
@@ -881,6 +889,9 @@
             document.getElementById("clientPhone").value = "";
             document.getElementById("clientEmail").value = "";
             document.getElementById("clientCity").value = "";
+            document.getElementById("notes").textContent = "";
+            initFechas();
+            refrescarConsecutivoInicial();
             selectCliente.value = "";
             discountTypeEl.value = "percent";
             discountValueEl.value = 0;
@@ -888,6 +899,7 @@
             limpiarItem();
             calcularTotales();
             actualizarFirmaCliente();
+            cotizacionCargadaNumero = null;
         }
 
         function intentarCargarPendiente() {
