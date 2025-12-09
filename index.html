@@ -677,7 +677,7 @@
             const items = obtenerItems();
             if (items.length === 0) {
                 alert("La cotización debe tener al menos un artículo.");
-                return;
+                return null;
             }
 
             const totales = calcularTotales();
@@ -740,6 +740,8 @@
             if (typeof sincronizarSupabaseAutomaticamente === 'function') {
                 sincronizarSupabaseAutomaticamente();
             }
+
+            return cotizacion.numero;
         }
         
         // 🟢 NUEVA FUNCIÓN: Guarda y luego genera el PDF
@@ -749,9 +751,16 @@
                 cotizacionCargadaNumero && String(cotizacionCargadaNumero) === numeroActual &&
                 data.cotizaciones.some(c => String(c.numero) === numeroActual);
 
+            let numeroParaPDF = numeroActual;
+
             if (!cotizacionYaGuardada) {
-                guardarCotizacion();
+                const numeroGuardado = guardarCotizacion();
+                if (!numeroGuardado) return;
+                numeroParaPDF = String(numeroGuardado);
             }
+
+            // Asegurar que el PDF use el número realmente guardado
+            document.getElementById("quoteNumber").value = numeroParaPDF;
 
             await generarPDF();
             limpiarFormulario();
