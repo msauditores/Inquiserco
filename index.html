@@ -278,9 +278,15 @@
         <div class="section-title">Notas y observaciones</div>
         <div class="info-card">
             <div id="notes" class="notes" contenteditable="true">
-                INCLUIR AQUÍ LOS DETALLES DE LA VALIDEZ, CONDICIONES DE PAGO, TIEMPO DE ENTREGA, Y CUALQUIER OTRA NOTA IMPORTANTE PARA EL CLIENTE.
+                Esta cotización está sujeta a los términos y condiciones que
+                se enuncian a continuación:
+                1. Duración de la oferta: 15 días.
+                2. Para iniciar la producción o servicio se realizará el
+                anticipo del 50%.
+                3. Entregado el trabajo o ejecutado el servicio no existen
+                devoluciones.
             </div>
-            
+
             </div>
 
         <div class="signature-block">
@@ -311,6 +317,17 @@
         const discountValueEl = document.getElementById("discountValue");
         const discountLabelEl = document.getElementById("discountLabel");
         const discountAmountEl = document.getElementById("discountAmount");
+        const notesElement = document.getElementById("notes");
+
+        const DEFAULT_NOTES = [
+            "Esta cotización está sujeta a los términos y condiciones que",
+            "se enuncian a continuación:",
+            "1. Duración de la oferta: 15 días.",
+            "2. Para iniciar la producción o servicio se realizará el",
+            "anticipo del 50%.",
+            "3. Entregado el trabajo o ejecutado el servicio no existen",
+            "devoluciones."
+        ].join("\n");
         
         const selectCliente = document.getElementById("selectCliente");
         const selectArticulo = document.getElementById("itemDesc");
@@ -661,7 +678,7 @@
             // 3. Cargar descuento y notas
             document.getElementById("discountType").value = cotizacion.descuento?.tipo || "percent";
             document.getElementById("discountValue").value = cotizacion.descuento?.valor || 0;
-            document.getElementById("notes").textContent = cotizacion.notas || "";
+            notesElement.textContent = cotizacion.notas || DEFAULT_NOTES;
 
             // 4. Cargar items (vaciar y rellenar)
             tableBody.innerHTML = "";
@@ -713,7 +730,7 @@
                 },
                 items: items,
                 descuento: descuento,
-                notas: document.getElementById("notes").textContent,
+                notas: notesElement.textContent,
                 totales: totales,
             };
 
@@ -980,7 +997,7 @@
             document.getElementById("clientPhone").value = "";
             document.getElementById("clientEmail").value = "";
             document.getElementById("clientCity").value = "";
-            document.getElementById("notes").textContent = "";
+            notesElement.textContent = DEFAULT_NOTES;
             initFechas();
             calcularSiguienteConsecutivo();
             refrescarConsecutivoInicial();
@@ -1106,9 +1123,10 @@
         function inicializar() {
             initFechas();
             calcularSiguienteConsecutivo();
-            refrescarConsecutivoInicial();    
+            refrescarConsecutivoInicial();
             renderSelectArticulos();
             renderSelectClientes();
+            notesElement.textContent = DEFAULT_NOTES;
             calcularTotales();
             intentarCargarPendiente();
             // Estas funciones se asumen que están en supabase-sync.js
