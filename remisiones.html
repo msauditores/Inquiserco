@@ -31,7 +31,7 @@
 
         h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: 0.2px; }
 
-        /* Contenedor de la página en pantalla */
+        /* Contenedor Principal */
         .page {
             width: 11in;
             min-height: 8.5in; 
@@ -43,11 +43,11 @@
             border-radius: 12px;
         }
 
-        /* --- MODO PDF (Hoja Continua) --- */
-        /* Esta clase se activa solo al generar el PDF para que salga perfecto */
+        /* --- MODO PDF (HOJA CONTINUA) --- */
+        /* Estas reglas se aplican solo al momento de generar el PDF */
         .pdf-mode {
             width: 11in !important;
-            height: auto !important; /* Altura automática según contenido */
+            height: auto !important;
             min-height: auto !important;
             margin: 0 !important;
             padding: 24px 28px !important;
@@ -56,7 +56,7 @@
             border-radius: 0 !important;
         }
 
-        /* Ocultar elementos que no queremos en el PDF */
+        /* Ocultar elementos de navegación y control en el PDF */
         .pdf-mode nav, 
         .pdf-mode .action-bar, 
         .pdf-mode .supabase-panel, 
@@ -65,70 +65,28 @@
             display: none !important;
         }
 
-        /* Evitar que las filas o firmas se corten */
+        /* Evitar cortes feos en tablas y firmas */
         tr { page-break-inside: avoid; }
         .observacion, .signature-area { page-break-inside: avoid; }
 
-        .top-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 3px solid var(--secondary);
-            padding-bottom: 16px;
-            margin-bottom: 16px;
-            gap: 16px;
-        }
-
+        /* Estilos de la interfaz */
+        .top-bar { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--secondary); padding-bottom: 16px; margin-bottom: 16px; gap: 16px; }
         .brand { display: flex; align-items: center; gap: 12px; }
-
-        .brand-mark {
-            width: 56px; height: 56px; padding: 6px;
-            border-radius: 50%; background: white;
-            border: 1px solid var(--border);
-            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
-            object-fit: contain;
-        }
-
+        .brand-mark { width: 56px; height: 56px; padding: 6px; border-radius: 50%; background: white; border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08); object-fit: contain; }
         .brand-name { display: flex; flex-direction: column; gap: 4px; }
         .brand-name strong { font-size: 16px; text-transform: uppercase; }
-        .header-left span { font-size: 12px; letter-spacing: 0.3px; color: #4a5568; }
-
-        .remision-title {
-            font-size: 22px; color: var(--secondary);
-            letter-spacing: 1px; text-transform: uppercase;
-        }
+        .remision-title { font-size: 22px; color: var(--secondary); letter-spacing: 1px; text-transform: uppercase; }
 
         nav { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-        nav a {
-            text-decoration: none; padding: 10px 14px; border-radius: 8px;
-            border: 1px solid var(--border); color: var(--secondary);
-            font-weight: 700; background: #f8fbff;
-        }
-        nav a.active {
-            background: linear-gradient(135deg, var(--secondary), var(--accent));
-            color: white; border-color: transparent;
-        }
+        nav a { text-decoration: none; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); color: var(--secondary); font-weight: 700; background: #f8fbff; }
+        nav a.active { background: linear-gradient(135deg, var(--secondary), var(--accent)); color: white; border-color: transparent; }
 
-        .section-title {
-            background: var(--secondary); color: white; padding: 8px 12px;
-            text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px;
-            border-radius: 8px 8px 0 0;
-            -webkit-print-color-adjust: exact;
-        }
+        .section-title { background: var(--secondary); color: white; padding: 8px 12px; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; border-radius: 8px 8px 0 0; -webkit-print-color-adjust: exact; }
 
-        .info-grid {
-            display: grid; grid-template-columns: 1.4fr 1fr; gap: 0;
-            border: 1px solid var(--border); border-top: 0; margin-bottom: 8px;
-            border-radius: 0 0 8px 8px; background: #f9fcff;
-        }
-
+        .info-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0; border: 1px solid var(--border); border-top: 0; margin-bottom: 8px; border-radius: 0 0 8px 8px; background: #f9fcff; }
         .info-block { padding: 6px 10px; border-right: 1px solid var(--border); }
         .info-block:last-child { border-right: 0; }
-        
-        .info-row {
-            display: flex; justify-content: space-between;
-            border-bottom: 1px solid var(--border); font-size: 12px; padding: 4px 0;
-        }
+        .info-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); font-size: 12px; padding: 4px 0; }
         .info-row:last-child { border-bottom: 0; }
         .info-row strong { font-weight: 700; }
 
@@ -137,61 +95,33 @@
         th { background: #f0f7fb; color: #2b4c63; text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; }
         tbody tr:nth-child(even) { background: #f8fbff; }
 
-        #tablaRemision input {
-            width: 100%; border: none; background: transparent;
-            font-size: 12px; font-family: inherit;
-        }
+        #tablaRemision input { width: 100%; border: none; background: transparent; font-size: 12px; font-family: inherit; }
         #tablaRemision input:disabled { color: #111; }
 
         .action-bar { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 14px; }
         
-        .btn {
-            padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer;
-            font-weight: 700; letter-spacing: 0.3px; background: #f8fbff;
-            color: var(--secondary); border: 1px solid var(--border);
-        }
-        .btn.primary {
-            background: linear-gradient(135deg, var(--secondary), var(--accent));
-            color: white; border: none;
-        }
+        .btn { padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: 700; letter-spacing: 0.3px; background: #f8fbff; color: var(--secondary); border: 1px solid var(--border); }
+        .btn.primary { background: linear-gradient(135deg, var(--secondary), var(--accent)); color: white; border: none; }
         .btn.danger { background: #ffe8e6; color: #b42318; border: 1px solid #fecdca; }
         .btn:hover { transform: translateY(-1px); }
 
-        .select-row {
-            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 10px; align-items: end; margin-bottom: 14px;
-        }
+        .select-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; align-items: end; margin-bottom: 14px; }
         .select-row label { font-size: 12px; font-weight: 700; color: #425466; display: block; margin-bottom: 4px; }
-        .select-row input, .select-row select {
-            width: 100%; padding: 8px 10px; border-radius: 7px;
-            border: 1px solid var(--border); font-size: 13px;
-        }
+        .select-row input, .select-row select { width: 100%; padding: 8px 10px; border-radius: 7px; border: 1px solid var(--border); font-size: 13px; }
 
-        .observacion {
-            border: 1px solid var(--border); border-top: 0; padding: 6px 10px;
-            font-size: 12px; border-radius: 0 0 8px 8px; background: #f9fcff;
-        }
-        .observacion textarea {
-            width: 100%; border: none; resize: vertical;
-            font-size: 12px; font-family: inherit; min-height: 38px;
-        }
+        .observacion { border: 1px solid var(--border); border-top: 0; padding: 6px 10px; font-size: 12px; border-radius: 0 0 8px 8px; background: #f9fcff; }
+        .observacion textarea { width: 100%; border: none; resize: vertical; font-size: 12px; font-family: inherit; min-height: 38px; }
 
-        .signature-area {
-            margin-top: 18px; border-top: 1px solid var(--border); padding-top: 18px;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: end;
-        }
+        .signature-area { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: end; }
         .signature-box { text-align: center; min-height: 90px; }
         .signature-line { border-top: 1px solid var(--border); margin-top: 30px; }
         .signature-label { font-size: 11px; margin-top: 6px; display: block; }
         .signature-image { max-width: 240px; max-height: 80px; object-fit: contain; }
 
-        .backup-card { 
-            border: 1px dashed var(--border); padding: 12px 14px; border-radius: 10px; 
-            background: #f8fbff; margin: 12px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; 
-        }
+        .backup-card { border: 1px dashed var(--border); padding: 12px 14px; border-radius: 10px; background: #f8fbff; margin: 12px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .backup-card p { margin: 0; color: #2b4c63; font-weight: 600; }
         
-        .supabase-panel { display: flex; } /* Aseguramos que se vea */
+        .supabase-panel { display: flex; }
         .sr-only { display: none; }
         .badge { padding: 3px 8px; background: var(--muted); border-radius: 999px; border: 1px solid var(--border); font-size: 11px; color: #2b4c63; }
 
@@ -200,9 +130,7 @@
         .edit-enabled .edit-only-block { display: inline-flex; }
         .edit-only-block { display: none; }
 
-        .list-card {
-            border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-top: 14px;
-        }
+        .list-card { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-top: 14px; }
         .list-card h3 { margin-bottom: 10px; color: var(--secondary); }
         .list-card table th { background: #f0f7fb; color: #2b4c63; }
 
@@ -212,10 +140,7 @@
             .select-row { grid-template-columns: 1fr; }
         }
         
-        /* Ocultar elementos nativos de impresión para forzar uso del botón PDF */
-        @media print {
-            body { display: none; }
-        }
+        @media print { body { display: none; } }
     </style>
 </head>
 <body>
@@ -223,7 +148,7 @@
     <div class="page" id="contenidoParaPDF">
         <div class="top-bar">
             <div class="brand">
-                <img src="Imagen1.jpg" alt="Logo de INQUISERCO" class="brand-mark" />
+                <img src="Imagen1.jpg" alt="Logo de INQUISERCO" class="brand-mark" onerror="this.style.display='none'"/>
                 <div class="brand-name">
                     <strong>INSUMOS QUIMICOS Y SERVICIOS DE LA COSTA</strong>
                     <span>NIT : 901875715-0</span>
@@ -250,10 +175,10 @@
                 <input id="supabaseRecord" type="hidden" value="principal" />
             </div>
             <div class="action-bar">
-                <button class="btn" onclick="probarSupabase()">Probar conexión</button>
-                <button class="btn" onclick="descargarDesdeSupabase()">Descargar desde Supabase</button>
-                <button class="btn primary" onclick="subirASupabase()">Subir a Supabase</button>
-                <span class="badge" id="supabaseStatus">Supabase sin configurar</span>
+                <button class="btn" onclick="probarSupabaseSeguro()">Probar conexión</button>
+                <button class="btn" onclick="descargarDesdeSupabaseSeguro()">Descargar nube</button>
+                <button class="btn primary" onclick="subirASupabaseSeguro()">Subir nube</button>
+                <span class="badge" id="supabaseStatus">Supabase listo</span>
             </div>
         </div>
 
@@ -394,6 +319,1020 @@
             remisionesCount: document.getElementById("remisionesCount"),
             tablaRemisionesGuardadas: document.querySelector("#tablaRemisionesGuardadas tbody"),
             btnToggleEdicion: document.getElementById("btnToggleEdicion"),
+        };
+
+        let remisionActual = null;
+        let editMode = false;
+
+        const persistir = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+
+        // --- SEGURIDAD PARA SUPABASE ---
+        function isSupaSyncAvailable() { return typeof SupaSync !== 'undefined'; }
+
+        function actualizarEstadoSupabase(mensaje, esError = false) {
+            supabaseInputs.status.textContent = mensaje;
+            supabaseInputs.status.style.background = esError ? "#ffe8e6" : "#e6f4ff";
+            supabaseInputs.status.style.color = esError ? "#b42318" : "#0f4f71";
+        }
+
+        function obtenerConfigSupabase() {
+            if (!isSupaSyncAvailable()) return {};
+            return SupaSync.saveConfig({
+                url: supabaseInputs.url?.value?.trim(),
+                key: supabaseInputs.key?.value?.trim(),
+                table: supabaseInputs.table?.value?.trim() || "inquiserco_respaldo",
+                record: supabaseInputs.record?.value?.trim() || "principal",
+            });
+        }
+
+        function cargarConfigSupabaseEnUI() {
+            if (!isSupaSyncAvailable()) return;
+            const config = SupaSync.loadConfig();
+            if (supabaseInputs.url) supabaseInputs.url.value = config.url || "";
+            if (supabaseInputs.key) supabaseInputs.key.value = config.key || "";
+            if (supabaseInputs.table) supabaseInputs.table.value = config.table || "";
+            if (supabaseInputs.record) supabaseInputs.record.value = config.record || "";
+            actualizarEstadoSupabase(SupaSync.hasConfig(config) ? "Config cargada" : "Supabase sin configurar");
+        }
+
+        function construirSnapshot() {
+            return {
+                version: 1,
+                generado: new Date().toISOString(),
+                articulos: JSON.parse(localStorage.getItem(storage.articulos) || "[]"),
+                clientes: JSON.parse(localStorage.getItem(storage.clientes) || "[]"),
+                cotizaciones: JSON.parse(localStorage.getItem(storage.cotizaciones) || "[]"),
+                remisiones: JSON.parse(localStorage.getItem(storage.remisiones) || "[]"),
+                consecutivo: parseInt(localStorage.getItem(storage.consecutivo) || "1", 10),
+                remisionConsecutivo: parseInt(localStorage.getItem(storage.remisionConsecutivo) || "1", 10),
+            };
+        }
+
+        function restaurarDesdeBackup(contenido) {
+            if (!contenido || typeof contenido !== 'object') {
+                alert("Archivo de respaldo inválido.");
+                return;
+            }
+            if (contenido.articulos) localStorage.setItem(storage.articulos, JSON.stringify(contenido.articulos));
+            if (contenido.clientes) localStorage.setItem(storage.clientes, JSON.stringify(contenido.clientes));
+            if (contenido.cotizaciones) localStorage.setItem(storage.cotizaciones, JSON.stringify(contenido.cotizaciones));
+            if (contenido.remisiones) localStorage.setItem(storage.remisiones, JSON.stringify(contenido.remisiones));
+            if (contenido.remisionConsecutivo) localStorage.setItem(storage.remisionConsecutivo, contenido.remisionConsecutivo);
+            
+            data.cotizaciones = JSON.parse(localStorage.getItem(storage.cotizaciones) || "[]");
+            data.remisiones = JSON.parse(localStorage.getItem(storage.remisiones) || "[]");
+            data.remisionConsecutivo = parseInt(localStorage.getItem(storage.remisionConsecutivo) || "1", 10);
+            
+            renderCotizacionesSelect();
+            renderRemisionesGuardadas();
+            actualizarConsecutivo();
+            alert("Datos restaurados correctamente.");
+        }
+
+        // Funciones Seguras de Supabase
+        async function probarSupabaseSeguro() {
+            if (!isSupaSyncAvailable()) return alert("Error: Librería SupaSync no cargada.");
+            try {
+                const config = obtenerConfigSupabase();
+                await SupaSync.testConnection(config);
+                actualizarEstadoSupabase("Conexión exitosa");
+                alert("Conexión con la nube exitosa.");
+            } catch (error) {
+                console.error(error);
+                actualizarEstadoSupabase("Error conexión", true);
+                alert("Error conectando a la nube: " + error.message);
+            }
+        }
+
+        async function descargarDesdeSupabaseSeguro() {
+            if (!isSupaSyncAvailable()) return alert("Error: Librería SupaSync no cargada.");
+            try {
+                const config = obtenerConfigSupabase();
+                const snapshot = await SupaSync.pullSnapshot(config);
+                if (snapshot?.payload) {
+                    restaurarDesdeBackup(snapshot.payload);
+                    actualizarEstadoSupabase("Datos descargados");
+                } else {
+                    alert("No se encontraron datos en la nube.");
+                }
+            } catch (error) {
+                console.error(error);
+                actualizarEstadoSupabase("Error descarga", true);
+                alert("Error descargando: " + error.message);
+            }
+        }
+
+        async function subirASupabaseSeguro() {
+            if (!isSupaSyncAvailable()) return alert("Error: Librería SupaSync no cargada.");
+            try {
+                const config = obtenerConfigSupabase();
+                await SupaSync.pushSnapshot(construirSnapshot(), config);
+                actualizarEstadoSupabase("Datos subidos OK");
+                alert("Datos guardados en la nube correctamente.");
+            } catch (error) {
+                console.error(error);
+                actualizarEstadoSupabase("Error subida", true);
+                alert("Error subiendo: " + error.message);
+            }
+        }
+
+        async function sincronizarAuto() {
+            if (!isSupaSyncAvailable()) return;
+            try {
+                const config = SupaSync.loadConfig();
+                if (SupaSync.hasConfig(config)) {
+                    await SupaSync.pushIfConfigured(construirSnapshot(), config);
+                    actualizarEstadoSupabase("Sincronizado auto");
+                }
+            } catch(e) { console.warn("Sync auto falló", e); }
+        }
+
+        // --- LÓGICA DE NEGOCIO ---
+
+        function calcularSiguienteRemision() {
+            const maxNumero = data.remisiones.reduce((max, remision) => {
+                const numero = parseInt(remision.numero, 10);
+                return Number.isFinite(numero) ? Math.max(max, numero) : max;
+            }, 0);
+            const siguiente = Math.max(1, maxNumero + 1);
+            data.remisionConsecutivo = siguiente;
+            localStorage.setItem(storage.remisionConsecutivo, siguiente);
+            return siguiente;
+        }
+
+        function actualizarConsecutivo() {
+            if (!Number.isFinite(data.remisionConsecutivo) || data.remisionConsecutivo < 1) {
+                data.remisionConsecutivo = 1;
+            }
+            elements.remisionNumero.value = data.remisionConsecutivo;
+        }
+
+        function renderCotizacionesSelect() {
+            elements.selectCotizacion.innerHTML = '<option value="">-- Seleccionar --</option>';
+            data.cotizaciones.forEach(cotizacion => {
+                const option = document.createElement("option");
+                option.value = cotizacion.numero;
+                option.textContent = `#${cotizacion.numero} - ${cotizacion.cliente?.empresa || "Sin cliente"}`;
+                elements.selectCotizacion.appendChild(option);
+            });
+        }
+
+        function renderRemisionesGuardadas() {
+            elements.tablaRemisionesGuardadas.innerHTML = "";
+            data.remisiones.forEach((remision, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${remision.numero}</td>
+                    <td>${remision.cliente?.empresa || remision.cliente?.nombre || "-"}</td>
+                    <td>${remision.fechaEntrega || "-"}</td>
+                    <td>${remision.cotizacionNumero || "-"}</td>
+                    <td>
+                        <button class="btn" style="padding:6px 10px;font-size:12px;" onclick="cargarRemisionGuardada(${index})">Cargar</button>
+                    </td>
+                `;
+                elements.tablaRemisionesGuardadas.appendChild(row);
+            });
+            elements.remisionesCount.textContent = `${data.remisiones.length} remisiones`;
+        }
+
+        function cargarCotizacionSeleccionada() {
+            const numero = elements.selectCotizacion.value;
+            if (!numero) return alert("Selecciona una cotización.");
+            const cotizacion = data.cotizaciones.find(cot => String(cot.numero) === String(numero));
+            if (!cotizacion) return alert("Cotización no encontrada.");
+            
+            remisionActual = crearRemisionDesdeCotizacion(cotizacion);
+            if (confirm("¿Deseas editar los productos?")) setEditMode(true);
+            else setEditMode(false);
+            actualizarVistaRemision();
+        }
+
+        function crearRemisionDesdeCotizacion(cotizacion) {
+            const siguiente = calcularSiguienteRemision();
+            elements.remisionNumero.value = siguiente;
+            return {
+                numero: siguiente,
+                fechaEntrega: elements.fechaEntrega.value || new Date().toISOString().slice(0, 10),
+                vendedor: elements.vendedor.value || "02",
+                cliente: {
+                    empresa: cotizacion.cliente?.empresa || cotizacion.cliente?.nombre || "",
+                    direccion: cotizacion.cliente?.direccion || "",
+                },
+                items: (cotizacion.items || []).map((item, index) => ({
+                    serie: index + 1,
+                    descripcion: item.desc || "",
+                    unidades: 1,
+                    cantidad: item.qty || 1,
+                    comentarios: "",
+                    precio: item.price || 0,
+                })),
+                observacion: `COT ${cotizacion.numero}`,
+                cotizacionNumero: cotizacion.numero,
+                firmaAdjunta: false,
+            };
+        }
+
+        function cargarRemisionGuardada(index) {
+            const remision = data.remisiones[index];
+            if (!remision) return;
+            remisionActual = JSON.parse(JSON.stringify(remision));
+            elements.remisionNumero.value = remisionActual.numero;
+            elements.fechaEntrega.value = remisionActual.fechaEntrega || "";
+            elements.vendedor.value = remisionActual.vendedor || "";
+            setEditMode(false);
+            actualizarVistaRemision();
+        }
+
+        function actualizarVistaRemision() {
+            if (!remisionActual) return;
+            elements.clienteNombre.textContent = remisionActual.cliente?.empresa || remisionActual.cliente?.nombre || "-";
+            elements.clienteDireccion.textContent = remisionActual.cliente?.direccion || "-";
+            elements.remisionEtiqueta.textContent = `REMISIÓN SALIDA DE VENTA: ${remisionActual.numero}`;
+            elements.fechaEntregaTexto.textContent = remisionActual.fechaEntrega || "-";
+            elements.vendedorTexto.textContent = remisionActual.vendedor || "-";
+            
+            // Fix: Eliminadas referencias a printElements que causaban el error
+            
+            elements.observacion.value = remisionActual.observacion || "";
+            elements.fechaEntrega.value = remisionActual.fechaEntrega || new Date().toISOString().slice(0, 10);
+            elements.vendedor.value = remisionActual.vendedor || "02";
+            renderItems();
+            renderFirma();
+        }
+
+        function renderItems() {
+            elements.tablaRemision.innerHTML = "";
+            if (!remisionActual) return;
+            remisionActual.items.forEach((item, index) => {
+                const row = document.createElement("tr");
+
+                const crearInput = (val, type, field, isNum) => {
+                    const i = document.createElement("input");
+                    i.type = type; i.value = val;
+                    if(isNum) i.min = 0;
+                    i.disabled = !editMode;
+                    i.oninput = (e) => remisionActual.items[index][field] = isNum ? Number(e.target.value) : e.target.value;
+                    return i;
+                };
+
+                row.innerHTML = `<td style="text-align:center;">${index + 1}</td>`;
+                const td = (content) => { const el = document.createElement("td"); el.appendChild(content); return el; };
+
+                row.appendChild(td(crearInput(item.descripcion||"", "text", "descripcion")));
+                row.appendChild(td(crearInput(item.unidades??1, "number", "unidades", true)));
+                row.appendChild(td(crearInput(item.cantidad??1, "number", "cantidad", true)));
+                row.appendChild(td(crearInput(item.comentarios||"", "text", "comentarios")));
+                
+                const pTd = td(crearInput(item.precio??0, "number", "precio", true));
+                pTd.className = "edit-only";
+                row.appendChild(pTd);
+
+                const aTd = document.createElement("td");
+                aTd.className = "edit-only";
+                const btn = document.createElement("button");
+                btn.className = "btn danger";
+                btn.textContent = "X";
+                btn.onclick = () => eliminarFila(index);
+                aTd.appendChild(btn);
+                row.appendChild(aTd);
+
+                elements.tablaRemision.appendChild(row);
+            });
+        }
+
+        function agregarFila() {
+            if (!remisionActual) return alert("Carga cotización.");
+            remisionActual.items.push({ serie: remisionActual.items.length+1, descripcion:"", unidades:1, cantidad:1, comentarios:"", precio:0 });
+            renderItems();
+        }
+
+        function eliminarFila(index) {
+            if (!remisionActual) return;
+            remisionActual.items.splice(index, 1);
+            renderItems();
+        }
+
+        function renderFirma() {
+            elements.firmaContainer.innerHTML = "";
+            if (remisionActual?.firmaAdjunta) {
+                const img = document.createElement("img");
+                img.src = "FirmaJP.jpg"; img.className = "signature-image";
+                elements.firmaContainer.appendChild(img);
+            }
+        }
+
+        function toggleEdicion() { setEditMode(!editMode); }
+        function setEditMode(val) {
+            editMode = val;
+            elements.btnToggleEdicion.textContent = val ? "Bloquear edición" : "Habilitar edición";
+            document.querySelectorAll(".edit-only-block").forEach(n => n.style.display = val ? "inline-flex" : "none");
+            renderItems();
+        }
+
+        // --- GUARDAR Y PDF ---
+        function guardarRemision() {
+            if (!remisionActual) return alert("No hay remisión.");
+            
+            remisionActual.fechaEntrega = elements.fechaEntrega.value;
+            remisionActual.vendedor = elements.vendedor.value;
+            remisionActual.observacion = elements.observacion.value;
+            remisionActual.items = remisionActual.items.map((it, i) => ({...it, serie: i+1}));
+
+            const idx = data.remisiones.findIndex(r => r.numero == remisionActual.numero);
+            if (idx === -1) {
+                data.remisiones.push(remisionActual);
+                calcularSiguienteRemision();
+            } else {
+                data.remisiones[idx] = remisionActual;
+            }
+            
+            persistir(storage.remisiones, data.remisiones);
+            renderRemisionesGuardadas();
+            actualizarVistaRemision();
+            sincronizarAuto();
+
+            if (!remisionActual.firmaAdjunta) {
+                if(confirm("¿Adjuntar firma automática?")) {
+                    remisionActual.firmaAdjunta = true;
+                    persistir(storage.remisiones, data.remisiones);
+                    renderFirma();
+                }
+            }
+            
+            setTimeout(() => generarPDF(), 500);
+        }
+
+        function generarPDF() {
+            if (editMode) setEditMode(false);
+
+            const elemento = document.getElementById('contenidoParaPDF');
+            const nro = elements.remisionNumero.value || "borrador";
+            
+            // Activar modo hoja continua
+            elemento.classList.add('pdf-mode');
+            
+            // Calcular altura dinámica
+            const pixelHeight = elemento.scrollHeight; 
+            const inchHeight = (pixelHeight / 96) + 0.6; 
+            const finalHeight = Math.max(8.5, inchHeight);
+
+            const opt = {
+                margin: [0.3, 0.3, 0.3, 0.3],
+                filename: `Remision_${nro}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF: { unit: 'in', format: [11, finalHeight], orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(elemento).save().then(() => {
+                elemento.classList.remove('pdf-mode');
+            }).catch(err => {
+                console.error(err);
+                elemento.classList.remove('pdf-mode');
+                alert("Error al generar PDF.");
+            });
+        }
+
+        function inicializar() {
+            elements.fechaEntrega.value = new Date().toISOString().slice(0, 10);
+            renderCotizacionesSelect();
+            renderRemisionesGuardadas();
+            calcularSiguienteRemision();
+            actualizarConsecutivo();
+            cargarConfigSupabaseEnUI();
+            
+            // Intento silencioso de carga inicial
+            if(isSupaSyncAvailable()) {
+                const c = SupaSync.loadConfig();
+                if(c.url) SupaSync.pullIfConfigured(c);
+            }
+
+            elements.fechaEntrega.addEventListener("input", () => {
+                if (!remisionActual) return;
+                remisionActual.fechaEntrega = elements.fechaEntrega.value;
+                elements.fechaEntregaTexto.textContent = elements.fechaEntrega.value || "-";
+            });
+
+            elements.vendedor.addEventListener("input", () => {
+                if (!remisionActual) return;
+                remisionActual.vendedor = elements.vendedor.value;
+                elements.vendedorTexto.textContent = elements.vendedor.value || "-";
+            });
+
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("cotizacion")) {
+                elements.selectCotizacion.value = params.get("cotizacion");
+                cargarCotizacionSeleccionada();
+            }
+        }
+
+        inicializar();
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remisiones - Inquiserco</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="supabase-sync.js"></script>
+    <style>
+        :root {
+            --primary: #0296c2;
+            --secondary: #0066a1;
+            --accent: #00b4e5;
+            --text: #262626;
+            --muted: #f2f7fb;
+            --border: #d9e5f0;
+            --table-header: #6f6a6a;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            background: #eef2f6;
+            color: var(--text);
+            margin: 0;
+            padding: 24px;
+        }
+
+        h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: 0.2px; }
+
+        .page {
+            width: 11in;
+            min-height: 8.5in; /* CULPABLE DE LA HOJA EN BLANCO: Se anulará al imprimir */
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            padding: 24px 28px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.15);
+            border-radius: 12px;
+        }
+
+        /* CORRECCIÓN DE CORTE DE PÁGINA */
+        tr { page-break-inside: avoid; }
+        .observacion, .signature-area { page-break-inside: avoid; }
+        
+        /* --- CLASE NUEVA PARA CORREGIR LA HOJA EN BLANCO --- */
+        /* Se aplica temporalmente mientras se genera el PDF */
+        .pdf-mode {
+            min-height: auto !important; /* Permite que la hoja termine donde acaba el texto */
+            height: auto !important;
+            box-shadow: none !important;
+            border: none !important;
+            padding-bottom: 0 !important;
+        }
+        
+        /* Ocultar elementos en el PDF para que no ocupen espacio fantasma */
+        .pdf-mode nav, 
+        .pdf-mode .action-bar, 
+        .pdf-mode .supabase-panel, 
+        .pdf-mode .select-row,
+        .pdf-mode .list-card {
+            display: none !important;
+        }
+        /* --------------------------------------------------- */
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid var(--secondary);
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-mark {
+            width: 56px;
+            height: 56px;
+            padding: 6px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid var(--border);
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+            object-fit: contain;
+        }
+
+        .brand-name {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .brand-name strong {
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+        .header-left span {
+            font-size: 12px;
+            letter-spacing: 0.3px;
+            color: #4a5568;
+        }
+
+        .remision-title {
+            font-size: 22px;
+            color: var(--secondary);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        nav {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            color: var(--secondary);
+            font-weight: 700;
+            background: #f8fbff;
+        }
+
+        nav a.active {
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            color: white;
+            border-color: transparent;
+        }
+
+        .section-title {
+            background: var(--secondary);
+            color: white;
+            padding: 8px 12px;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            border-radius: 8px 8px 0 0;
+            -webkit-print-color-adjust: exact; 
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 0;
+            border: 1px solid var(--border);
+            border-top: 0;
+            margin-bottom: 8px;
+            border-radius: 0 0 8px 8px;
+            background: #f9fcff;
+        }
+
+        .info-block {
+            padding: 6px 10px;
+            border-right: 1px solid var(--border);
+        }
+
+        .info-block:last-child {
+            border-right: 0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            padding: 4px 0;
+        }
+
+        .info-row:last-child {
+            border-bottom: 0;
+        }
+
+        .info-row strong { font-weight: 700; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid var(--border); padding: 6px 8px; font-size: 12px; }
+        th { background: #f0f7fb; color: #2b4c63; text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; }
+        tbody tr:nth-child(even) { background: #f8fbff; }
+
+        #tablaRemision input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 12px;
+            font-family: inherit;
+        }
+
+        #tablaRemision input:disabled {
+            color: #111;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0 14px;
+        }
+
+        .backup-card {
+            border: 1px dashed var(--border);
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #f8fbff;
+            margin: 12px 0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .backup-card p { margin: 0; color: #2b4c63; font-weight: 600; }
+
+        .btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            background: #f8fbff;
+            color: var(--secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            color: white;
+            border: none;
+        }
+
+        .btn.danger {
+            background: #ffe8e6;
+            color: #b42318;
+            border: 1px solid #fecdca;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+
+        .select-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 10px;
+            align-items: end;
+            margin-bottom: 14px;
+        }
+
+        .select-row label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #425466;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .select-row input,
+        .select-row select {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .observacion {
+            border: 1px solid var(--border);
+            border-top: 0;
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 0 0 8px 8px;
+            background: #f9fcff;
+        }
+
+        .observacion textarea {
+            width: 100%;
+            border: none;
+            resize: vertical;
+            font-size: 12px;
+            font-family: inherit;
+            min-height: 38px;
+        }
+
+        .signature-area {
+            margin-top: 18px;
+            border-top: 1px solid var(--border);
+            padding-top: 18px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: end;
+        }
+
+        .signature-box {
+            text-align: center;
+            min-height: 90px;
+        }
+
+        .signature-line {
+            border-top: 1px solid var(--border);
+            margin-top: 30px;
+        }
+
+        .signature-label {
+            font-size: 11px;
+            margin-top: 6px;
+            display: block;
+        }
+
+        .signature-image {
+            max-width: 240px;
+            max-height: 80px;
+            object-fit: contain;
+        }
+
+        .supabase-panel { display: none; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+        .badge { padding: 3px 8px; background: var(--muted); border-radius: 999px; border: 1px solid var(--border); font-size: 11px; color: #2b4c63; }
+        .edit-only { display: none; }
+        .edit-enabled .edit-only { display: table-cell; }
+        .edit-enabled .edit-only-block { display: inline-flex; }
+        .edit-only-block { display: none; }
+
+        .list-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-top: 14px;
+        }
+
+        .list-card h3 {
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+
+        .list-card table th { background: #f0f7fb; color: #2b4c63; }
+        .print-header,
+        .print-footer {
+            display: none;
+        }
+
+        @media (max-width: 1100px) {
+            body { padding: 12px; }
+            .page { padding: 18px; }
+            .select-row { grid-template-columns: 1fr; }
+        }
+
+        @media print {
+            body { padding: 0; background: white; }
+            nav,
+            .action-bar,
+            .list-card,
+            .select-row,
+            .supabase-panel {
+                display: none !important;
+            }
+            .page {
+                box-shadow: none;
+                border-radius: 0;
+                width: 11in;
+                min-height: auto;
+                padding: 72px 20px 54px;
+            }
+            .edit-only { display: none !important; }
+            .print-header,
+            .print-footer {
+                display: flex;
+                position: fixed;
+                left: 0;
+                right: 0;
+                background: white;
+                color: #2b4c63;
+            }
+            .print-header {
+                top: 0;
+                align-items: center;
+                justify-content: space-between;
+                padding: 8px 20px;
+                border-bottom: 1px solid var(--border);
+                font-size: 11px;
+                gap: 16px;
+            }
+            .print-header .print-client {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+            .print-footer {
+                bottom: 0;
+                justify-content: flex-end;
+                padding: 6px 20px;
+                border-top: 1px solid var(--border);
+                font-size: 11px;
+            }
+            .print-page-count::after {
+                content: "Página " counter(page) " de " counter(pages);
+            }
+            body { counter-reset: page; }
+        }
+
+        @page {
+            size: letter landscape;
+            margin: 0.35in;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-header">
+        <div class="print-client">
+            <div><strong>Cliente:</strong> <span id="printCliente">-</span></div>
+            <div><strong>Remisión:</strong> <span id="printRemision">-</span></div>
+            <div><strong>Entrega:</strong> <span id="printEntrega">-</span></div>
+        </div>
+        <div class="print-page-count"></div>
+    </div>
+    <div class="print-footer">
+        <div class="print-page-count"></div>
+    </div>
+    
+    <div class="page" id="contenidoParaPDF">
+        <div class="top-bar">
+            <div class="brand">
+                <img src="Imagen1.jpg" alt="Logo de INQUISERCO" class="brand-mark" />
+                <div class="brand-name">
+                    <strong>INSUMOS QUIMICOS Y SERVICIOS DE LA COSTA</strong>
+                    <span>NIT : 901875715-0</span>
+                </div>
+            </div>
+            <div class="remision-title">Remisión</div>
+        </div>
+
+        <nav data-html2canvas-ignore="true">
+            <a href="index.html">Cotización</a>
+            <a href="cotizaciones.html">Cotizaciones</a>
+            <a class="active" href="remisiones.html">Remisiones</a>
+            <a href="articulos.html">Artículos</a>
+            <a href="clientes.html">Clientes</a>
+        </nav>
+
+        <div class="backup-card supabase-panel" style="flex-direction: column; align-items: flex-start;" data-html2canvas-ignore="true">
+            <p>Sincroniza con Supabase para guardar en la nube.</p>
+            <p class="badge" style="background:#e6f4ff;color:#0f4f71;">Supabase configurado automáticamente para INQUISERCO.</p>
+            <div class="sr-only" aria-hidden="true">
+                <input id="supabaseUrl" type="hidden" value="https://uxfehqfkcthsmvpegzfn.supabase.co" />
+                <input id="supabaseKey" type="hidden" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4ZmVocWZrY3Roc212cGVnemZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3MDYzMTksImV4cCI6MjA4MDI4MjMxOX0.jEC9vCZy7_XElSnQWMx2D2C0R_l1JCvwhwvjkDGcrEs" />
+                <input id="supabaseTable" type="hidden" value="inquiserco_respaldo" />
+                <input id="supabaseRecord" type="hidden" value="principal" />
+            </div>
+            <div class="action-bar">
+                <button class="btn" onclick="probarSupabase()">Probar conexión</button>
+                <button class="btn" onclick="descargarDesdeSupabase()">Descargar desde Supabase</button>
+                <button class="btn primary" onclick="subirASupabase()">Subir a Supabase</button>
+                <span class="badge" id="supabaseStatus">Supabase sin configurar</span>
+            </div>
+        </div>
+
+        <div class="select-row" data-html2canvas-ignore="true">
+            <div>
+                <label for="selectCotizacion">Cotización base</label>
+                <select id="selectCotizacion">
+                    <option value="">-- Seleccionar --</option>
+                </select>
+            </div>
+            <div>
+                <label for="remisionNumero">Remisión salida de venta</label>
+                <input id="remisionNumero" type="text" readonly />
+            </div>
+            <div>
+                <label for="fechaEntrega">Fecha de entrega</label>
+                <input id="fechaEntrega" type="date" />
+            </div>
+            <div>
+                <label for="vendedor">Vendedor</label>
+                <input id="vendedor" type="text" placeholder="02" />
+            </div>
+        </div>
+
+        <div class="action-bar" data-html2canvas-ignore="true">
+            <button class="btn primary" onclick="cargarCotizacionSeleccionada()">Cargar cotización</button>
+            <button class="btn edit-only-block" onclick="agregarFila()">Agregar fila</button>
+            <button class="btn" onclick="toggleEdicion()" id="btnToggleEdicion">Habilitar edición</button>
+            <button class="btn primary" onclick="guardarRemision()">Guardar remisión</button>
+            
+            <button class="btn primary" style="background:#262626; color: white;" onclick="generarPDF()">Descargar PDF</button>
+            
+            <button class="btn" onclick="window.print()">Imprimir</button>
+            <span class="badge" id="remisionesCount">0 remisiones</span>
+        </div>
+
+        <div class="section-title">Información del cliente</div>
+        <div class="info-grid">
+            <div class="info-block">
+                <div class="info-row"><strong>Cliente:</strong> <span id="clienteNombre">-</span></div>
+                <div class="info-row"><strong>Dirección:</strong> <span id="clienteDireccion">-</span></div>
+                <div class="info-row"><strong>Concepto:</strong> <span id="clienteConcepto">REMISION SALIDA</span></div>
+            </div>
+            <div class="info-block">
+                <div class="info-row"><strong>Remisión:</strong> <span id="remisionEtiqueta">-</span></div>
+                <div class="info-row"><strong>Fecha de entrega:</strong> <span id="fechaEntregaTexto">-</span></div>
+                <div class="info-row"><strong>Vendedor:</strong> <span id="vendedorTexto">-</span></div>
+            </div>
+        </div>
+
+        <table id="tablaRemision">
+            <thead>
+                <tr>
+                    <th style="width:60px;">Número de serie</th>
+                    <th>Nombre del producto</th>
+                    <th style="width:90px;">Unidades</th>
+                    <th style="width:90px;">Cantidad</th>
+                    <th>Comentarios</th>
+                    <th class="edit-only" style="width:110px;">Precio</th>
+                    <th class="edit-only" style="width:90px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div class="observacion">
+            <strong>Observación:</strong>
+            <textarea id="observacion" placeholder="Agrega observaciones o comentarios generales..."></textarea>
+        </div>
+
+        <div class="signature-area">
+            <div class="signature-box">
+                <div id="firmaContainer"></div>
+                <div class="signature-line"></div>
+                <span class="signature-label">Firma recibido</span>
+            </div>
+            <div class="signature-box">
+                <div style="height: 30px;"></div>
+                <div class="signature-line"></div>
+                <span class="signature-label">Firma entregado</span>
+            </div>
+        </div>
+
+        <div class="list-card" data-html2canvas-ignore="true">
+            <h3>Remisiones guardadas</h3>
+            <table id="tablaRemisionesGuardadas">
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>Cliente</th>
+                        <th>Fecha entrega</th>
+                        <th>Cotización</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const storage = {
+            cotizaciones: "inquiserco_cotizaciones",
+            remisiones: "inquiserco_remisiones",
+            remisionConsecutivo: "inquiserco_remision_consecutivo",
+            articulos: "inquiserco_articulos",
+            clientes: "inquiserco_clientes",
+            consecutivo: "inquiserco_consecutivo",
+        };
+
+        const data = {
+            cotizaciones: JSON.parse(localStorage.getItem(storage.cotizaciones) || "[]"),
+            remisiones: JSON.parse(localStorage.getItem(storage.remisiones) || "[]"),
+            remisionConsecutivo: parseInt(localStorage.getItem(storage.remisionConsecutivo) || "1", 10),
+        };
+
+        const supabaseInputs = {
+            url: document.getElementById("supabaseUrl"),
+            key: document.getElementById("supabaseKey"),
+            table: document.getElementById("supabaseTable"),
+            record: document.getElementById("supabaseRecord"),
+            status: document.getElementById("supabaseStatus"),
+        };
+
+        const elements = {
+            selectCotizacion: document.getElementById("selectCotizacion"),
+            remisionNumero: document.getElementById("remisionNumero"),
+            fechaEntrega: document.getElementById("fechaEntrega"),
+            vendedor: document.getElementById("vendedor"),
+            clienteNombre: document.getElementById("clienteNombre"),
+            clienteDireccion: document.getElementById("clienteDireccion"),
+            clienteConcepto: document.getElementById("clienteConcepto"),
+            remisionEtiqueta: document.getElementById("remisionEtiqueta"),
+            fechaEntregaTexto: document.getElementById("fechaEntregaTexto"),
+            vendedorTexto: document.getElementById("vendedorTexto"),
+            observacion: document.getElementById("observacion"),
+            tablaRemision: document.querySelector("#tablaRemision tbody"),
+            firmaContainer: document.getElementById("firmaContainer"),
+            remisionesCount: document.getElementById("remisionesCount"),
+            tablaRemisionesGuardadas: document.querySelector("#tablaRemisionesGuardadas tbody"),
+            btnToggleEdicion: document.getElementById("btnToggleEdicion"),
             printCliente: document.getElementById("printCliente"),
             printRemision: document.getElementById("printRemision"),
             printEntrega: document.getElementById("printEntrega"),
@@ -403,8 +1342,6 @@
         let editMode = false;
 
         const persistir = (key, value) => localStorage.setItem(key, JSON.stringify(value));
-
-        // --- TUS FUNCIONES ORIGINALES DE SUPABASE Y DATOS (INTACTAS) ---
 
         function actualizarEstadoSupabase(mensaje, esError = false) {
             supabaseInputs.status.textContent = mensaje;
@@ -793,7 +1730,6 @@
             }
         }
 
-        // --- FUNCIÓN GUARDAR (MODIFICADA PARA GENERAR PDF) ---
         function guardarRemision() {
             if (!remisionActual) {
                 alert("Primero carga una cotización para crear la remisión.");
@@ -830,11 +1766,7 @@
                     persistir(storage.remisiones, data.remisiones);
                 }
             }
-            
-            // --- NUEVO: Descarga el PDF automáticamente tras guardar ---
-            setTimeout(() => {
-                generarPDF();
-            }, 500); 
+            alert("Remisión guardada correctamente.");
         }
 
         function inicializar() {
@@ -869,44 +1801,35 @@
             }
         }
         
-        // --- FUNCIÓN GENERAR PDF CON CORRECCIÓN DE ALTURA (HOJA CONTINUA) ---
+        // --- FUNCIÓN GENERAR PDF CON CORRECCIÓN DE ALTURA ---
         function generarPDF() {
             if (editMode) {
-                // Si está editando, cierra edición sin preguntar para que sea fluido
-                setEditMode(false);
+                if (confirm("Se desactivará el modo edición para generar el PDF limpio. ¿Continuar?")) {
+                    setEditMode(false);
+                } else { return; }
             }
 
             const elemento = document.getElementById('contenidoParaPDF');
             const nro = elements.remisionNumero.value || "borrador";
             
-            // 1. Activar modo PDF para quitar bordes, sombras y márgenes extraños
+            // 1. Agregar clase temporal para quitar altura forzada
             elemento.classList.add('pdf-mode');
             
-            // 2. Calcular altura real del contenido para adaptar la hoja
-            // (1 pulgada son aprox 96px). Sumamos un margen extra de 0.6in.
-            const pixelHeight = elemento.scrollHeight; 
-            const inchHeight = (pixelHeight / 96) + 0.6; 
-            
-            // Usamos mínimo 8.5in (carta) o la altura del contenido si es mayor
-            const finalHeight = Math.max(8.5, inchHeight);
-
             const opt = {
                 margin:       [0.3, 0.3, 0.3, 0.3], 
                 filename:     `Remision_${nro}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
-                // Configuración de hoja dinámica: Ancho fijo (11in), Alto variable
-                jsPDF:        { unit: 'in', format: [11, finalHeight], orientation: 'portrait' },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' },
                 pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
-            // 3. Generar y restaurar estilos originales al terminar
+            // 2. Generar y al terminar, quitar la clase
             html2pdf().set(opt).from(elemento).save().then(() => {
                 elemento.classList.remove('pdf-mode');
             }).catch(err => {
                 console.error(err);
                 elemento.classList.remove('pdf-mode');
-                alert("Error al generar PDF. Revisa la consola.");
             });
         }
 
