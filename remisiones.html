@@ -44,7 +44,6 @@
         }
 
         /* --- MODO PDF (HOJA CONTINUA) --- */
-        /* Estas reglas se aplican solo al momento de generar el PDF */
         .pdf-mode {
             width: 11in !important;
             height: auto !important;
@@ -56,7 +55,7 @@
             border-radius: 0 !important;
         }
 
-        /* Ocultar elementos de navegación y control en el PDF */
+        /* Ocultar elementos en el PDF */
         .pdf-mode nav, 
         .pdf-mode .action-bar, 
         .pdf-mode .supabase-panel, 
@@ -65,11 +64,11 @@
             display: none !important;
         }
 
-        /* Evitar cortes feos en tablas y firmas */
+        /* Evitar cortes feos */
         tr { page-break-inside: avoid; }
         .observacion, .signature-area { page-break-inside: avoid; }
 
-        /* Estilos de la interfaz */
+        /* Estilos generales */
         .top-bar { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--secondary); padding-bottom: 16px; margin-bottom: 16px; gap: 16px; }
         .brand { display: flex; align-items: center; gap: 12px; }
         .brand-mark { width: 56px; height: 56px; padding: 6px; border-radius: 50%; background: white; border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08); object-fit: contain; }
@@ -209,7 +208,7 @@
             <button class="btn" onclick="toggleEdicion()" id="btnToggleEdicion">Habilitar edición</button>
             
             <button class="btn primary" onclick="guardarRemision()">Guardar remisión</button>
-            <button class="btn primary" style="background:#262626; color: white;" onclick="guardarRemision()">Descargar PDF</button>
+            <button class="btn primary" onclick="guardarRemision()">Descargar PDF</button>
             
             <span class="badge" id="remisionesCount">0 remisiones</span>
         </div>
@@ -254,12 +253,7 @@
                 <div class="signature-line"></div>
                 <span class="signature-label">Firma recibido</span>
             </div>
-            <div class="signature-box">
-                <div style="height: 30px;"></div>
-                <div class="signature-line"></div>
-                <span class="signature-label">Firma entregado</span>
             </div>
-        </div>
 
         <div class="list-card" data-html2canvas-ignore="true">
             <h3>Remisiones guardadas</h3>
@@ -551,7 +545,7 @@
             elements.fechaEntregaTexto.textContent = remisionActual.fechaEntrega || "-";
             elements.vendedorTexto.textContent = remisionActual.vendedor || "-";
             
-            // Fix: Eliminadas referencias a printElements que causaban el error
+            // --- CORRECCIÓN: Se eliminaron referencias a elementos printCliente/printRemision que causaban error ---
             
             elements.observacion.value = remisionActual.observacion || "";
             elements.fechaEntrega.value = remisionActual.fechaEntrega || new Date().toISOString().slice(0, 10);
@@ -662,6 +656,30 @@
             setTimeout(() => generarPDF(), 500);
         }
 
+        // --- FUNCIÓN PARA LIMPIAR TODO TRAS DESCARGA ---
+        function limpiarFormulario() {
+            remisionActual = null;
+            
+            // Limpiar textos
+            elements.clienteNombre.textContent = "-";
+            elements.clienteDireccion.textContent = "-";
+            elements.remisionEtiqueta.textContent = "-";
+            elements.fechaEntregaTexto.textContent = "-";
+            elements.vendedorTexto.textContent = "-";
+            
+            // Limpiar inputs
+            elements.observacion.value = "";
+            elements.selectCotizacion.value = "";
+            elements.tablaRemision.innerHTML = "";
+            elements.firmaContainer.innerHTML = "";
+            
+            // Recalcular consecutivo para la próxima
+            actualizarConsecutivo();
+            
+            // Resetear modo edición
+            setEditMode(false);
+        }
+
         function generarPDF() {
             if (editMode) setEditMode(false);
 
@@ -686,6 +704,8 @@
 
             html2pdf().set(opt).from(elemento).save().then(() => {
                 elemento.classList.remove('pdf-mode');
+                // --- AQUÍ OCURRE LA LIMPIEZA AUTOMÁTICA ---
+                setTimeout(limpiarFormulario, 1000); 
             }).catch(err => {
                 console.error(err);
                 elemento.classList.remove('pdf-mode');
@@ -701,7 +721,6 @@
             actualizarConsecutivo();
             cargarConfigSupabaseEnUI();
             
-            // Intento silencioso de carga inicial
             if(isSupaSyncAvailable()) {
                 const c = SupaSync.loadConfig();
                 if(c.url) SupaSync.pullIfConfigured(c);
