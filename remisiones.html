@@ -32,7 +32,7 @@
 
         .page {
             width: 11in;
-            min-height: 8.5in;
+            min-height: 8.5in; /* CULPABLE DE LA HOJA EN BLANCO: Se anulará al imprimir */
             max-width: 100%;
             margin: 0 auto;
             background: white;
@@ -41,10 +41,30 @@
             border-radius: 12px;
         }
 
-        /* CORRECCIÓN DE CORTE DE PÁGINA (MOCHA) */
+        /* CORRECCIÓN DE CORTE DE PÁGINA */
         tr { page-break-inside: avoid; }
         .observacion, .signature-area { page-break-inside: avoid; }
         
+        /* --- CLASE NUEVA PARA CORREGIR LA HOJA EN BLANCO --- */
+        /* Se aplica temporalmente mientras se genera el PDF */
+        .pdf-mode {
+            min-height: auto !important; /* Permite que la hoja termine donde acaba el texto */
+            height: auto !important;
+            box-shadow: none !important;
+            border: none !important;
+            padding-bottom: 0 !important;
+        }
+        
+        /* Ocultar elementos en el PDF para que no ocupen espacio fantasma */
+        .pdf-mode nav, 
+        .pdf-mode .action-bar, 
+        .pdf-mode .supabase-panel, 
+        .pdf-mode .select-row,
+        .pdf-mode .list-card {
+            display: none !important;
+        }
+        /* --------------------------------------------------- */
+
         .top-bar {
             display: flex;
             align-items: center;
@@ -127,7 +147,6 @@
             font-size: 12px;
             letter-spacing: 0.5px;
             border-radius: 8px 8px 0 0;
-            /* Asegura que el color de fondo salga en el PDF */
             -webkit-print-color-adjust: exact; 
         }
 
@@ -518,7 +537,11 @@
                 <div class="signature-line"></div>
                 <span class="signature-label">Firma recibido</span>
             </div>
-            <div class="signature-box"></div>
+            <div class="signature-box">
+                <div style="height: 30px;"></div>
+                <div class="signature-line"></div>
+                <span class="signature-label">Firma entregado</span>
+            </div>
         </div>
 
         <div class="list-card" data-html2canvas-ignore="true">
@@ -1047,31 +1070,36 @@
             }
         }
         
-        // --- FUNCIÓN NUEVA PARA GENERAR PDF ---
+        // --- FUNCIÓN GENERAR PDF CON CORRECCIÓN DE ALTURA ---
         function generarPDF() {
-            // Aseguramos que la edición esté cerrada para que el PDF salga limpio
             if (editMode) {
-                if (confirm("Se detectó que el modo edición está activo. Se desactivará para generar el PDF limpio. ¿Continuar?")) {
+                if (confirm("Se desactivará el modo edición para generar el PDF limpio. ¿Continuar?")) {
                     setEditMode(false);
-                } else {
-                    return; 
-                }
+                } else { return; }
             }
 
             const elemento = document.getElementById('contenidoParaPDF');
             const nro = elements.remisionNumero.value || "borrador";
             
+            // 1. Agregar clase temporal para quitar altura forzada
+            elemento.classList.add('pdf-mode');
+            
             const opt = {
-                margin:       [0.3, 0.3, 0.3, 0.3], // Márgenes (arriba, izq, abajo, der)
+                margin:       [0.3, 0.3, 0.3, 0.3], 
                 filename:     `Remision_${nro}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
                 jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' },
-                // Esto ayuda a respetar los cortes de página
                 pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
-            html2pdf().set(opt).from(elemento).save();
+            // 2. Generar y al terminar, quitar la clase
+            html2pdf().set(opt).from(elemento).save().then(() => {
+                elemento.classList.remove('pdf-mode');
+            }).catch(err => {
+                console.error(err);
+                elemento.classList.remove('pdf-mode');
+            });
         }
 
         inicializar();
