@@ -32,7 +32,7 @@
 
         .page {
             width: 11in;
-            min-height: 8.5in; /* CULPABLE DE LA HOJA EN BLANCO: Se anulará al imprimir */
+            min-height: 8.5in; 
             max-width: 100%;
             margin: 0 auto;
             background: white;
@@ -45,17 +45,18 @@
         tr { page-break-inside: avoid; }
         .observacion, .signature-area { page-break-inside: avoid; }
         
-        /* --- CLASE NUEVA PARA CORREGIR LA HOJA EN BLANCO --- */
-        /* Se aplica temporalmente mientras se genera el PDF */
+        /* --- MODO PDF: Ajustes visuales para la generación --- */
         .pdf-mode {
-            min-height: auto !important; /* Permite que la hoja termine donde acaba el texto */
+            min-height: auto !important; 
             height: auto !important;
             box-shadow: none !important;
             border: none !important;
-            padding-bottom: 0 !important;
+            margin: 0 !important;
+            /* Quitamos padding extra inferior para que el cálculo sea exacto */
+            padding-bottom: 24px !important; 
         }
         
-        /* Ocultar elementos en el PDF para que no ocupen espacio fantasma */
+        /* Ocultar elementos en el PDF */
         .pdf-mode nav, 
         .pdf-mode .action-bar, 
         .pdf-mode .supabase-panel, 
@@ -63,7 +64,6 @@
         .pdf-mode .list-card {
             display: none !important;
         }
-        /* --------------------------------------------------- */
 
         .top-bar {
             display: flex;
@@ -344,88 +344,14 @@
         }
 
         .list-card table th { background: #f0f7fb; color: #2b4c63; }
-        .print-header,
-        .print-footer {
-            display: none;
-        }
-
-        @media (max-width: 1100px) {
-            body { padding: 12px; }
-            .page { padding: 18px; }
-            .select-row { grid-template-columns: 1fr; }
-        }
-
+        
+        /* Ocultar elementos en impresión normal del navegador por si acaso */
         @media print {
-            body { padding: 0; background: white; }
-            nav,
-            .action-bar,
-            .list-card,
-            .select-row,
-            .supabase-panel {
-                display: none !important;
-            }
-            .page {
-                box-shadow: none;
-                border-radius: 0;
-                width: 11in;
-                min-height: auto;
-                padding: 72px 20px 54px;
-            }
-            .edit-only { display: none !important; }
-            .print-header,
-            .print-footer {
-                display: flex;
-                position: fixed;
-                left: 0;
-                right: 0;
-                background: white;
-                color: #2b4c63;
-            }
-            .print-header {
-                top: 0;
-                align-items: center;
-                justify-content: space-between;
-                padding: 8px 20px;
-                border-bottom: 1px solid var(--border);
-                font-size: 11px;
-                gap: 16px;
-            }
-            .print-header .print-client {
-                display: flex;
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-            .print-footer {
-                bottom: 0;
-                justify-content: flex-end;
-                padding: 6px 20px;
-                border-top: 1px solid var(--border);
-                font-size: 11px;
-            }
-            .print-page-count::after {
-                content: "Página " counter(page) " de " counter(pages);
-            }
-            body { counter-reset: page; }
-        }
-
-        @page {
-            size: letter landscape;
-            margin: 0.35in;
+            body { display: none; } /* Preferimos que usen el botón PDF */
         }
     </style>
 </head>
 <body>
-    <div class="print-header">
-        <div class="print-client">
-            <div><strong>Cliente:</strong> <span id="printCliente">-</span></div>
-            <div><strong>Remisión:</strong> <span id="printRemision">-</span></div>
-            <div><strong>Entrega:</strong> <span id="printEntrega">-</span></div>
-        </div>
-        <div class="print-page-count"></div>
-    </div>
-    <div class="print-footer">
-        <div class="print-page-count"></div>
-    </div>
     
     <div class="page" id="contenidoParaPDF">
         <div class="top-bar">
@@ -489,11 +415,11 @@
             <button class="btn primary" onclick="cargarCotizacionSeleccionada()">Cargar cotización</button>
             <button class="btn edit-only-block" onclick="agregarFila()">Agregar fila</button>
             <button class="btn" onclick="toggleEdicion()" id="btnToggleEdicion">Habilitar edición</button>
+            
             <button class="btn primary" onclick="guardarRemision()">Guardar remisión</button>
             
-            <button class="btn primary" style="background:#262626; color: white;" onclick="generarPDF()">Descargar PDF</button>
+            <button class="btn primary" onclick="guardarRemision()">Descargar PDF</button>
             
-            <button class="btn" onclick="window.print()">Imprimir</button>
             <span class="badge" id="remisionesCount">0 remisiones</span>
         </div>
 
@@ -999,6 +925,7 @@
             }
         }
 
+        // --- LÓGICA UNIFICADA: Guardar SIEMPRE descarga el PDF ---
         function guardarRemision() {
             if (!remisionActual) {
                 alert("Primero carga una cotización para crear la remisión.");
@@ -1035,7 +962,12 @@
                     persistir(storage.remisiones, data.remisiones);
                 }
             }
-            alert("Remisión guardada correctamente.");
+            
+            // AUTOMÁTICAMENTE GENERAR EL PDF TRAS GUARDAR
+            // Pequeño timeout para dar feedback visual de guardado primero
+            setTimeout(() => {
+                generarPDF();
+            }, 300);
         }
 
         function inicializar() {
@@ -1070,35 +1002,45 @@
             }
         }
         
-        // --- FUNCIÓN GENERAR PDF CON CORRECCIÓN DE ALTURA ---
+        // --- FUNCIÓN GENERAR PDF CON ALTURA ADAPTATIVA (HOJA CONTINUA) ---
         function generarPDF() {
             if (editMode) {
-                if (confirm("Se desactivará el modo edición para generar el PDF limpio. ¿Continuar?")) {
-                    setEditMode(false);
-                } else { return; }
+                // Si está en edición, la cerramos automáticamente sin preguntar, para agilizar el guardado
+                setEditMode(false);
             }
 
             const elemento = document.getElementById('contenidoParaPDF');
             const nro = elements.remisionNumero.value || "borrador";
             
-            // 1. Agregar clase temporal para quitar altura forzada
+            // 1. Aplicar clase para quitar límites y ocultar botones
             elemento.classList.add('pdf-mode');
             
+            // 2. Medir la altura real del contenido (en píxeles)
+            const alturaContenido = elemento.offsetHeight; // Altura en px
+            // Convertir px a pulgadas (aprox 96px = 1 pulgada). 
+            // Sumamos un margen de seguridad (1.5 pulgadas) para encabezados y pies que html2pdf agrega.
+            const alturaPulgadas = (alturaContenido / 96) + 0.6; 
+            
+            // Definimos el ancho carta landscape (11 pulgadas) y el alto calculado
+            // Nota: Mínimo 8.5in de alto por estética, o la altura calculada si es mayor
+            const alturaFinal = Math.max(8.5, alturaPulgadas);
+
             const opt = {
                 margin:       [0.3, 0.3, 0.3, 0.3], 
                 filename:     `Remision_${nro}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' },
-                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+                // AQUÍ ESTÁ EL TRUCO: Formato dinámico [ancho, alto]
+                jsPDF:        { unit: 'in', format: [11, alturaFinal], orientation: 'portrait' } 
             };
 
-            // 2. Generar y al terminar, quitar la clase
+            // 3. Generar y restaurar
             html2pdf().set(opt).from(elemento).save().then(() => {
                 elemento.classList.remove('pdf-mode');
             }).catch(err => {
                 console.error(err);
                 elemento.classList.remove('pdf-mode');
+                alert("Error al generar PDF.");
             });
         }
 
