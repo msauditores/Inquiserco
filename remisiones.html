@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Remisiones - Inquiserco</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="supabase-sync.js"></script>
     <style>
         :root {
@@ -40,6 +41,10 @@
             border-radius: 12px;
         }
 
+        /* CORRECCIÓN DE CORTE DE PÁGINA (MOCHA) */
+        tr { page-break-inside: avoid; }
+        .observacion, .signature-area { page-break-inside: avoid; }
+        
         .top-bar {
             display: flex;
             align-items: center;
@@ -122,6 +127,8 @@
             font-size: 12px;
             letter-spacing: 0.5px;
             border-radius: 8px 8px 0 0;
+            /* Asegura que el color de fondo salga en el PDF */
+            -webkit-print-color-adjust: exact; 
         }
 
         .info-grid {
@@ -400,7 +407,8 @@
     <div class="print-footer">
         <div class="print-page-count"></div>
     </div>
-    <div class="page">
+    
+    <div class="page" id="contenidoParaPDF">
         <div class="top-bar">
             <div class="brand">
                 <img src="Imagen1.jpg" alt="Logo de INQUISERCO" class="brand-mark" />
@@ -412,7 +420,7 @@
             <div class="remision-title">Remisión</div>
         </div>
 
-        <nav>
+        <nav data-html2canvas-ignore="true">
             <a href="index.html">Cotización</a>
             <a href="cotizaciones.html">Cotizaciones</a>
             <a class="active" href="remisiones.html">Remisiones</a>
@@ -420,7 +428,7 @@
             <a href="clientes.html">Clientes</a>
         </nav>
 
-        <div class="backup-card supabase-panel" style="flex-direction: column; align-items: flex-start;">
+        <div class="backup-card supabase-panel" style="flex-direction: column; align-items: flex-start;" data-html2canvas-ignore="true">
             <p>Sincroniza con Supabase para guardar en la nube.</p>
             <p class="badge" style="background:#e6f4ff;color:#0f4f71;">Supabase configurado automáticamente para INQUISERCO.</p>
             <div class="sr-only" aria-hidden="true">
@@ -437,7 +445,7 @@
             </div>
         </div>
 
-        <div class="select-row">
+        <div class="select-row" data-html2canvas-ignore="true">
             <div>
                 <label for="selectCotizacion">Cotización base</label>
                 <select id="selectCotizacion">
@@ -458,11 +466,14 @@
             </div>
         </div>
 
-        <div class="action-bar">
+        <div class="action-bar" data-html2canvas-ignore="true">
             <button class="btn primary" onclick="cargarCotizacionSeleccionada()">Cargar cotización</button>
             <button class="btn edit-only-block" onclick="agregarFila()">Agregar fila</button>
             <button class="btn" onclick="toggleEdicion()" id="btnToggleEdicion">Habilitar edición</button>
             <button class="btn primary" onclick="guardarRemision()">Guardar remisión</button>
+            
+            <button class="btn primary" style="background:#262626; color: white;" onclick="generarPDF()">Descargar PDF</button>
+            
             <button class="btn" onclick="window.print()">Imprimir</button>
             <span class="badge" id="remisionesCount">0 remisiones</span>
         </div>
@@ -510,7 +521,7 @@
             <div class="signature-box"></div>
         </div>
 
-        <div class="list-card">
+        <div class="list-card" data-html2canvas-ignore="true">
             <h3>Remisiones guardadas</h3>
             <table id="tablaRemisionesGuardadas">
                 <thead>
@@ -1034,6 +1045,33 @@
                 elements.selectCotizacion.value = numeroCotizacion;
                 cargarCotizacionSeleccionada();
             }
+        }
+        
+        // --- FUNCIÓN NUEVA PARA GENERAR PDF ---
+        function generarPDF() {
+            // Aseguramos que la edición esté cerrada para que el PDF salga limpio
+            if (editMode) {
+                if (confirm("Se detectó que el modo edición está activo. Se desactivará para generar el PDF limpio. ¿Continuar?")) {
+                    setEditMode(false);
+                } else {
+                    return; 
+                }
+            }
+
+            const elemento = document.getElementById('contenidoParaPDF');
+            const nro = elements.remisionNumero.value || "borrador";
+            
+            const opt = {
+                margin:       [0.3, 0.3, 0.3, 0.3], // Márgenes (arriba, izq, abajo, der)
+                filename:     `Remision_${nro}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' },
+                // Esto ayuda a respetar los cortes de página
+                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            html2pdf().set(opt).from(elemento).save();
         }
 
         inicializar();
