@@ -7,6 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="supabase-sync.js"></script>
+    
     <style>
         :root {
             --primary: #0296c2;
@@ -30,9 +31,10 @@
 
         h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: 0.2px; }
 
+        /* Contenedor de la página en pantalla */
         .page {
             width: 11in;
-            min-height: 8.5in; /* CULPABLE DE LA HOJA EN BLANCO: Se anulará al imprimir */
+            min-height: 8.5in; 
             max-width: 100%;
             margin: 0 auto;
             background: white;
@@ -41,29 +43,31 @@
             border-radius: 12px;
         }
 
-        /* CORRECCIÓN DE CORTE DE PÁGINA */
-        tr { page-break-inside: avoid; }
-        .observacion, .signature-area { page-break-inside: avoid; }
-        
-        /* --- CLASE NUEVA PARA CORREGIR LA HOJA EN BLANCO --- */
-        /* Se aplica temporalmente mientras se genera el PDF */
+        /* --- MODO PDF (Hoja Continua) --- */
+        /* Esta clase se activa solo al generar el PDF para que salga perfecto */
         .pdf-mode {
-            min-height: auto !important; /* Permite que la hoja termine donde acaba el texto */
-            height: auto !important;
+            width: 11in !important;
+            height: auto !important; /* Altura automática según contenido */
+            min-height: auto !important;
+            margin: 0 !important;
+            padding: 24px 28px !important;
             box-shadow: none !important;
             border: none !important;
-            padding-bottom: 0 !important;
+            border-radius: 0 !important;
         }
-        
-        /* Ocultar elementos en el PDF para que no ocupen espacio fantasma */
+
+        /* Ocultar elementos que no queremos en el PDF */
         .pdf-mode nav, 
         .pdf-mode .action-bar, 
         .pdf-mode .supabase-panel, 
-        .pdf-mode .select-row,
+        .pdf-mode .select-row, 
         .pdf-mode .list-card {
             display: none !important;
         }
-        /* --------------------------------------------------- */
+
+        /* Evitar que las filas o firmas se corten */
+        tr { page-break-inside: avoid; }
+        .observacion, .signature-area { page-break-inside: avoid; }
 
         .top-bar {
             display: flex;
@@ -75,357 +79,146 @@
             gap: 16px;
         }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .brand { display: flex; align-items: center; gap: 12px; }
 
         .brand-mark {
-            width: 56px;
-            height: 56px;
-            padding: 6px;
-            border-radius: 50%;
-            background: white;
+            width: 56px; height: 56px; padding: 6px;
+            border-radius: 50%; background: white;
             border: 1px solid var(--border);
             box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
             object-fit: contain;
         }
 
-        .brand-name {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .brand-name strong {
-            font-size: 16px;
-            text-transform: uppercase;
-        }
-
-        .header-left span {
-            font-size: 12px;
-            letter-spacing: 0.3px;
-            color: #4a5568;
-        }
+        .brand-name { display: flex; flex-direction: column; gap: 4px; }
+        .brand-name strong { font-size: 16px; text-transform: uppercase; }
+        .header-left span { font-size: 12px; letter-spacing: 0.3px; color: #4a5568; }
 
         .remision-title {
-            font-size: 22px;
-            color: var(--secondary);
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            font-size: 22px; color: var(--secondary);
+            letter-spacing: 1px; text-transform: uppercase;
         }
 
-        nav {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
+        nav { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
         nav a {
-            text-decoration: none;
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            color: var(--secondary);
-            font-weight: 700;
-            background: #f8fbff;
+            text-decoration: none; padding: 10px 14px; border-radius: 8px;
+            border: 1px solid var(--border); color: var(--secondary);
+            font-weight: 700; background: #f8fbff;
         }
-
         nav a.active {
             background: linear-gradient(135deg, var(--secondary), var(--accent));
-            color: white;
-            border-color: transparent;
+            color: white; border-color: transparent;
         }
 
         .section-title {
-            background: var(--secondary);
-            color: white;
-            padding: 8px 12px;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 0.5px;
+            background: var(--secondary); color: white; padding: 8px 12px;
+            text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px;
             border-radius: 8px 8px 0 0;
-            -webkit-print-color-adjust: exact; 
+            -webkit-print-color-adjust: exact;
         }
 
         .info-grid {
-            display: grid;
-            grid-template-columns: 1.4fr 1fr;
-            gap: 0;
-            border: 1px solid var(--border);
-            border-top: 0;
-            margin-bottom: 8px;
-            border-radius: 0 0 8px 8px;
-            background: #f9fcff;
+            display: grid; grid-template-columns: 1.4fr 1fr; gap: 0;
+            border: 1px solid var(--border); border-top: 0; margin-bottom: 8px;
+            border-radius: 0 0 8px 8px; background: #f9fcff;
         }
 
-        .info-block {
-            padding: 6px 10px;
-            border-right: 1px solid var(--border);
-        }
-
-        .info-block:last-child {
-            border-right: 0;
-        }
-
+        .info-block { padding: 6px 10px; border-right: 1px solid var(--border); }
+        .info-block:last-child { border-right: 0; }
+        
         .info-row {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border);
-            font-size: 12px;
-            padding: 4px 0;
+            display: flex; justify-content: space-between;
+            border-bottom: 1px solid var(--border); font-size: 12px; padding: 4px 0;
         }
-
-        .info-row:last-child {
-            border-bottom: 0;
-        }
-
+        .info-row:last-child { border-bottom: 0; }
         .info-row strong { font-weight: 700; }
 
-        table { width: 100%; border-collapse: collapse; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
         th, td { border: 1px solid var(--border); padding: 6px 8px; font-size: 12px; }
         th { background: #f0f7fb; color: #2b4c63; text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; }
         tbody tr:nth-child(even) { background: #f8fbff; }
 
         #tablaRemision input {
-            width: 100%;
-            border: none;
-            background: transparent;
-            font-size: 12px;
-            font-family: inherit;
+            width: 100%; border: none; background: transparent;
+            font-size: 12px; font-family: inherit;
         }
+        #tablaRemision input:disabled { color: #111; }
 
-        #tablaRemision input:disabled {
-            color: #111;
-        }
-
-        .action-bar {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 10px 0 14px;
-        }
-
-        .backup-card {
-            border: 1px dashed var(--border);
-            padding: 12px 14px;
-            border-radius: 10px;
-            background: #f8fbff;
-            margin: 12px 0;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .backup-card p { margin: 0; color: #2b4c63; font-weight: 600; }
-
+        .action-bar { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 14px; }
+        
         .btn {
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            background: #f8fbff;
-            color: var(--secondary);
-            border: 1px solid var(--border);
+            padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer;
+            font-weight: 700; letter-spacing: 0.3px; background: #f8fbff;
+            color: var(--secondary); border: 1px solid var(--border);
         }
-
         .btn.primary {
             background: linear-gradient(135deg, var(--secondary), var(--accent));
-            color: white;
-            border: none;
+            color: white; border: none;
         }
-
-        .btn.danger {
-            background: #ffe8e6;
-            color: #b42318;
-            border: 1px solid #fecdca;
-        }
-
+        .btn.danger { background: #ffe8e6; color: #b42318; border: 1px solid #fecdca; }
         .btn:hover { transform: translateY(-1px); }
 
         .select-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 10px;
-            align-items: end;
-            margin-bottom: 14px;
+            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 10px; align-items: end; margin-bottom: 14px;
         }
-
-        .select-row label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #425466;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .select-row input,
-        .select-row select {
-            width: 100%;
-            padding: 8px 10px;
-            border-radius: 7px;
-            border: 1px solid var(--border);
-            font-size: 13px;
+        .select-row label { font-size: 12px; font-weight: 700; color: #425466; display: block; margin-bottom: 4px; }
+        .select-row input, .select-row select {
+            width: 100%; padding: 8px 10px; border-radius: 7px;
+            border: 1px solid var(--border); font-size: 13px;
         }
 
         .observacion {
-            border: 1px solid var(--border);
-            border-top: 0;
-            padding: 6px 10px;
-            font-size: 12px;
-            border-radius: 0 0 8px 8px;
-            background: #f9fcff;
+            border: 1px solid var(--border); border-top: 0; padding: 6px 10px;
+            font-size: 12px; border-radius: 0 0 8px 8px; background: #f9fcff;
         }
-
         .observacion textarea {
-            width: 100%;
-            border: none;
-            resize: vertical;
-            font-size: 12px;
-            font-family: inherit;
-            min-height: 38px;
+            width: 100%; border: none; resize: vertical;
+            font-size: 12px; font-family: inherit; min-height: 38px;
         }
 
         .signature-area {
-            margin-top: 18px;
-            border-top: 1px solid var(--border);
-            padding-top: 18px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            align-items: end;
+            margin-top: 18px; border-top: 1px solid var(--border); padding-top: 18px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: end;
         }
+        .signature-box { text-align: center; min-height: 90px; }
+        .signature-line { border-top: 1px solid var(--border); margin-top: 30px; }
+        .signature-label { font-size: 11px; margin-top: 6px; display: block; }
+        .signature-image { max-width: 240px; max-height: 80px; object-fit: contain; }
 
-        .signature-box {
-            text-align: center;
-            min-height: 90px;
+        .backup-card { 
+            border: 1px dashed var(--border); padding: 12px 14px; border-radius: 10px; 
+            background: #f8fbff; margin: 12px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; 
         }
-
-        .signature-line {
-            border-top: 1px solid var(--border);
-            margin-top: 30px;
-        }
-
-        .signature-label {
-            font-size: 11px;
-            margin-top: 6px;
-            display: block;
-        }
-
-        .signature-image {
-            max-width: 240px;
-            max-height: 80px;
-            object-fit: contain;
-        }
-
-        .supabase-panel { display: none; }
-        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+        .backup-card p { margin: 0; color: #2b4c63; font-weight: 600; }
+        
+        .supabase-panel { display: flex; } /* Aseguramos que se vea */
+        .sr-only { display: none; }
         .badge { padding: 3px 8px; background: var(--muted); border-radius: 999px; border: 1px solid var(--border); font-size: 11px; color: #2b4c63; }
+
         .edit-only { display: none; }
         .edit-enabled .edit-only { display: table-cell; }
         .edit-enabled .edit-only-block { display: inline-flex; }
         .edit-only-block { display: none; }
 
         .list-card {
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px 14px;
-            margin-top: 14px;
+            border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-top: 14px;
         }
-
-        .list-card h3 {
-            margin-bottom: 10px;
-            color: var(--secondary);
-        }
-
+        .list-card h3 { margin-bottom: 10px; color: var(--secondary); }
         .list-card table th { background: #f0f7fb; color: #2b4c63; }
-        .print-header,
-        .print-footer {
-            display: none;
-        }
 
         @media (max-width: 1100px) {
             body { padding: 12px; }
             .page { padding: 18px; }
             .select-row { grid-template-columns: 1fr; }
         }
-
+        
+        /* Ocultar elementos nativos de impresión para forzar uso del botón PDF */
         @media print {
-            body { padding: 0; background: white; }
-            nav,
-            .action-bar,
-            .list-card,
-            .select-row,
-            .supabase-panel {
-                display: none !important;
-            }
-            .page {
-                box-shadow: none;
-                border-radius: 0;
-                width: 11in;
-                min-height: auto;
-                padding: 72px 20px 54px;
-            }
-            .edit-only { display: none !important; }
-            .print-header,
-            .print-footer {
-                display: flex;
-                position: fixed;
-                left: 0;
-                right: 0;
-                background: white;
-                color: #2b4c63;
-            }
-            .print-header {
-                top: 0;
-                align-items: center;
-                justify-content: space-between;
-                padding: 8px 20px;
-                border-bottom: 1px solid var(--border);
-                font-size: 11px;
-                gap: 16px;
-            }
-            .print-header .print-client {
-                display: flex;
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-            .print-footer {
-                bottom: 0;
-                justify-content: flex-end;
-                padding: 6px 20px;
-                border-top: 1px solid var(--border);
-                font-size: 11px;
-            }
-            .print-page-count::after {
-                content: "Página " counter(page) " de " counter(pages);
-            }
-            body { counter-reset: page; }
-        }
-
-        @page {
-            size: letter landscape;
-            margin: 0.35in;
+            body { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="print-header">
-        <div class="print-client">
-            <div><strong>Cliente:</strong> <span id="printCliente">-</span></div>
-            <div><strong>Remisión:</strong> <span id="printRemision">-</span></div>
-            <div><strong>Entrega:</strong> <span id="printEntrega">-</span></div>
-        </div>
-        <div class="print-page-count"></div>
-    </div>
-    <div class="print-footer">
-        <div class="print-page-count"></div>
-    </div>
     
     <div class="page" id="contenidoParaPDF">
         <div class="top-bar">
@@ -489,11 +282,10 @@
             <button class="btn primary" onclick="cargarCotizacionSeleccionada()">Cargar cotización</button>
             <button class="btn edit-only-block" onclick="agregarFila()">Agregar fila</button>
             <button class="btn" onclick="toggleEdicion()" id="btnToggleEdicion">Habilitar edición</button>
+            
             <button class="btn primary" onclick="guardarRemision()">Guardar remisión</button>
+            <button class="btn primary" style="background:#262626; color: white;" onclick="guardarRemision()">Descargar PDF</button>
             
-            <button class="btn primary" style="background:#262626; color: white;" onclick="generarPDF()">Descargar PDF</button>
-            
-            <button class="btn" onclick="window.print()">Imprimir</button>
             <span class="badge" id="remisionesCount">0 remisiones</span>
         </div>
 
@@ -611,6 +403,8 @@
         let editMode = false;
 
         const persistir = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+
+        // --- TUS FUNCIONES ORIGINALES DE SUPABASE Y DATOS (INTACTAS) ---
 
         function actualizarEstadoSupabase(mensaje, esError = false) {
             supabaseInputs.status.textContent = mensaje;
@@ -999,6 +793,7 @@
             }
         }
 
+        // --- FUNCIÓN GUARDAR (MODIFICADA PARA GENERAR PDF) ---
         function guardarRemision() {
             if (!remisionActual) {
                 alert("Primero carga una cotización para crear la remisión.");
@@ -1035,7 +830,11 @@
                     persistir(storage.remisiones, data.remisiones);
                 }
             }
-            alert("Remisión guardada correctamente.");
+            
+            // --- NUEVO: Descarga el PDF automáticamente tras guardar ---
+            setTimeout(() => {
+                generarPDF();
+            }, 500); 
         }
 
         function inicializar() {
@@ -1070,35 +869,44 @@
             }
         }
         
-        // --- FUNCIÓN GENERAR PDF CON CORRECCIÓN DE ALTURA ---
+        // --- FUNCIÓN GENERAR PDF CON CORRECCIÓN DE ALTURA (HOJA CONTINUA) ---
         function generarPDF() {
             if (editMode) {
-                if (confirm("Se desactivará el modo edición para generar el PDF limpio. ¿Continuar?")) {
-                    setEditMode(false);
-                } else { return; }
+                // Si está editando, cierra edición sin preguntar para que sea fluido
+                setEditMode(false);
             }
 
             const elemento = document.getElementById('contenidoParaPDF');
             const nro = elements.remisionNumero.value || "borrador";
             
-            // 1. Agregar clase temporal para quitar altura forzada
+            // 1. Activar modo PDF para quitar bordes, sombras y márgenes extraños
             elemento.classList.add('pdf-mode');
             
+            // 2. Calcular altura real del contenido para adaptar la hoja
+            // (1 pulgada son aprox 96px). Sumamos un margen extra de 0.6in.
+            const pixelHeight = elemento.scrollHeight; 
+            const inchHeight = (pixelHeight / 96) + 0.6; 
+            
+            // Usamos mínimo 8.5in (carta) o la altura del contenido si es mayor
+            const finalHeight = Math.max(8.5, inchHeight);
+
             const opt = {
                 margin:       [0.3, 0.3, 0.3, 0.3], 
                 filename:     `Remision_${nro}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' },
+                // Configuración de hoja dinámica: Ancho fijo (11in), Alto variable
+                jsPDF:        { unit: 'in', format: [11, finalHeight], orientation: 'portrait' },
                 pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
-            // 2. Generar y al terminar, quitar la clase
+            // 3. Generar y restaurar estilos originales al terminar
             html2pdf().set(opt).from(elemento).save().then(() => {
                 elemento.classList.remove('pdf-mode');
             }).catch(err => {
                 console.error(err);
                 elemento.classList.remove('pdf-mode');
+                alert("Error al generar PDF. Revisa la consola.");
             });
         }
 
